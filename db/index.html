@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>CCPC Members Database</title>
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#fff;--card:#f3f7fa;--tx:#083d5f;--mut:#5b7388;--bd:#d3e0ea;--y:#fab813;--o:#ff6600;--n:#083d5f;--b:#3992b9;--r:#bb1421}
+[data-theme=dark]{--bg:#06202f;--card:#0b3049;--tx:#f2f6f9;--mut:#9db6c8;--bd:#1b4d6e;--n:#3992b9}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--tx);font:14px/1.5 system-ui,sans-serif}
+h1,h2,h3,.dsp{font-family:Unbounded,system-ui,sans-serif}
+[hidden]{display:none!important}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer;border:0;border-radius:8px;padding:8px 14px;background:var(--n);color:#fff;font-weight:600}
+[data-theme=dark] button{background:var(--b)}
+button.y{background:var(--y);color:#083d5f}button.r{background:var(--r);color:#fff}
+button.g{background:transparent;color:var(--tx);border:1px solid var(--bd)}
+:focus-visible{outline:3px solid var(--o);outline-offset:2px}
+input,select,textarea{width:100%;padding:8px 10px;border:1px solid var(--bd);border-radius:8px;background:var(--bg)}
+header{display:flex;flex-wrap:wrap;align-items:center;gap:12px;padding:10px 20px;background:var(--n);color:#fff;border-bottom:5px solid var(--y)}
+header img{height:52px;background:#fff;border-radius:50%}
+header h1{font-size:15px;margin:0;flex:1;min-width:180px}
+header nav button{background:transparent;border:1px solid #ffffff55}
+header nav button.on{background:var(--y);color:#083d5f}
+header button{background:#ffffff22}
+#who{font-size:12px}
+.pill{display:inline-block;padding:1px 9px;border-radius:99px;font-size:12px;font-weight:600;background:var(--y);color:#083d5f}
+.wrap{max-width:1200px;margin:0 auto;padding:18px}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:14px}
+.st{background:var(--card);border-left:6px solid var(--b);border-radius:10px;padding:10px 14px;cursor:pointer;text-align:left;color:var(--tx)}
+.st b{display:block;font:800 26px Unbounded}.st:nth-child(2){border-color:var(--y)}.st:nth-child(3){border-color:var(--o)}.st:nth-child(4){border-color:var(--r)}
+.bar{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px}
+.bar input{flex:2;min-width:200px}.bar select{flex:1;min-width:120px}
+.tw{overflow-x:auto;border:1px solid var(--bd);border-radius:10px}
+table{width:100%;border-collapse:collapse}
+th{background:var(--n);color:#fff;text-align:left;padding:10px;cursor:pointer;white-space:nowrap}
+td{padding:9px 10px;border-top:1px solid var(--bd)}
+tbody tr{cursor:pointer}tbody tr:hover{background:var(--card)}
+.s-Active{background:var(--b);color:#fff}.s-Inactive{background:#8a99a6;color:#fff}.s-Pending{background:var(--y);color:#083d5f}
+.ov{position:fixed;inset:0;background:#000a;display:flex;align-items:flex-start;justify-content:center;overflow:auto;padding:20px;z-index:9}
+.mc{background:var(--bg);border-radius:14px;max-width:760px;width:100%;padding:20px;border-top:6px solid var(--o)}
+.mc h2{margin:0 0 10px;font-size:18px}
+.gt{font:600 13px Unbounded;color:var(--o);margin:18px 0 8px;padding-bottom:4px;border-bottom:2px solid var(--y)}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:10px}
+.grid .w{grid-column:1/-1}
+.grid label{font-size:12px;color:var(--mut);display:block}
+.grid .v{font-weight:600;word-break:break-word}
+.ck{display:flex;gap:8px;align-items:flex-start;margin:6px 0}.ck input{width:auto;margin-top:4px}
+.acts{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px;justify-content:flex-end}
+#login,#reg{max-width:560px;margin:30px auto;padding:20px;text-align:center}
+#login img{width:200px;max-width:60%}
+.err{color:var(--r);font-weight:600}
+.lock{background:var(--card);padding:8px 12px;border-radius:8px;color:var(--mut);margin-top:12px}
+@media print{header,.stats,.bar,.tw,.acts{display:none!important}.ov{position:static;background:none;padding:0}.mc{border:0}}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<section id="login" hidden>
+  <img src="logo.jpg" alt="Calapan City Pickleball Club">
+  <h2>Members Database</h2>
+  <p>Mag-sign in gamit ang Gmail para makita ang listahan ng members.</p>
+  <button class="y" id="gbtn">Sign in with Google</button>
+  <p><a href="#register" id="toReg">Bagong member? Mag-register dito</a></p>
+  <p class="err" id="lerr"></p>
+</section>
+
+<!-- PENDING -->
+<section id="wait" hidden class="wrap" style="text-align:center">
+  <h2>Naghihintay ng approval</h2>
+  <p>Naka-sign in ka na, pero kailangan pang aprubahan ng Super Admin ang account mo.<br>Subukan ulit mamaya.</p>
+  <button class="g" onclick="auth.signOut()">Sign out</button>
+</section>
+
+<!-- PUBLIC REGISTRATION -->
+<section id="reg" hidden>
+  <img src="logo.jpg" alt="" style="width:140px">
+  <h2>Member Registration</h2>
+  <p>Punan ang form. Lalabas ka sa listahan pagkatapos i-approve ng admin.</p>
+  <form id="rform" style="text-align:left"></form>
+  <p><a href="#" id="toLogin">Bumalik sa login</a></p>
+</section>
+
+<!-- APP -->
+<main id="app" hidden>
+  <header>
+    <img src="logo.jpg" alt="CCPC">
+    <h1>CCPC Members Database</h1>
+    <nav><button data-v="m" class="on">Members</button> <button data-v="u" id="nu" hidden>Users</button></nav>
+    <span id="who"></span>
+    <button id="th" title="Light / dark">Light/Dark</button>
+    <button id="lo">Sign out</button>
+  </header>
+  <div class="wrap">
+    <section id="vm">
+      <div class="stats" id="stats"></div>
+      <div class="bar">
+        <input id="q" type="search" placeholder="Search name, nickname, DUPR, phone, email">
+        <select id="fmo"></select><select id="fg"></select><select id="fcs"></select>
+        <select id="fbt"></select><select id="fmd"></select><select id="fst"></select>
+        <button class="g" id="clr">Clear filters</button>
+        <button class="y" id="add" hidden>+ Add member</button>
+        <button class="g" id="csv" hidden>Export CSV</button>
+      </div>
+      <div class="tw"><table><thead id="thead"></thead><tbody id="tb"></tbody></table></div>
+      <p id="count" style="color:var(--mut)"></p>
+    </section>
+    <section id="vu" hidden></section>
+  </div>
+</main>
+<div class="ov" id="ov" hidden><div class="mc" id="mc"></div></div>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script>
+/* ===== 1. SETUP: palitan ang mga YOUR_... ===== */
+const CFG={apiKey:"YOUR_API_KEY",authDomain:"ccpc-1943f.firebaseapp.com",projectId:"ccpc-1943f",appId:"YOUR_APP_ID"};
+const SUPER_ADMIN="YOUR_GMAIL@gmail.com"; // ikaw: auto Super Admin pag nag-login
+
+firebase.initializeApp(CFG);
+const auth=firebase.auth(),db=firebase.firestore();
+
+/* ===== 2. FIELDS ===== */
+const GROUPS=["Personal","Contact","Emergency contact","Health","Club"];
+const F=[
+{k:"fullname",l:"Full name",g:0,req:1},
+{k:"nickname",l:"Nickname",g:0},
+{k:"birthdate",l:"Birthdate",t:"date",g:0,req:1},
+{k:"gender",l:"Gender",t:"sel",o:["Male","Female","Prefer not to say"],g:0},
+{k:"civil",l:"Civil status",t:"sel",o:["Single","Married","Widowed","Separated"],g:0},
+{k:"dupr",l:"DUPR ID",g:0},
+{k:"phone",l:"Phone number",t:"tel",g:1,req:1},
+{k:"email",l:"Email address",t:"email",g:1},
+{k:"address",l:"Home address",g:1,s:1,w:1},
+{k:"ecName",l:"Emergency contact name",g:2,s:1,req:1},
+{k:"ecRel",l:"Relationship",g:2,s:1},
+{k:"ecPhone",l:"Contact number",t:"tel",g:2,s:1,req:1},
+{k:"height",l:"Height (cm)",t:"number",g:3,s:1},
+{k:"weight",l:"Weight (kg)",t:"number",g:3,s:1},
+{k:"blood",l:"Blood type",t:"sel",o:["A+","A-","B+","B-","AB+","AB-","O+","O-","Unknown"],g:3,s:1},
+{k:"hasCond",l:"Pre-existing medical condition?",t:"sel",o:["No","Yes"],g:3,s:1},
+{k:"cond",l:"If yes, what condition?",g:3,s:1,w:1},
+{k:"meds",l:"Medication, if any",g:3,s:1,w:1},
+{k:"dateJoined",l:"Date joined",t:"date",g:4,adm:1},
+{k:"status",l:"Status",t:"sel",o:["Active","Inactive","Pending"],g:4,adm:1},
+{k:"fbName",l:"Facebook name",g:4}
+];
+const CK=[["fit","I confirm that I am physically fit to play pickleball."],
+["rules","I agree to follow the club rules and regulations."],
+["liab","I release the club from liability."],
+["fbg","I agree to be added to the club's Facebook group."]];
+const MO=["January","February","March","April","May","June","July","August","September","October","November","December"];
+const COLS=[["nickname","Nickname"],["fullname","Full name"],["birthdate","Age"],["gender","Gender"],["dupr","DUPR ID"],["phone","Phone"],["status","Status"]];
+
+/* ===== 3. HELPERS ===== */
+const $=s=>document.querySelector(s);
+const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const today=()=>new Date().toISOString().slice(0,10);
+function age(b){if(!b)return"";const d=new Date(b),n=new Date();let m=(n.getFullYear()-d.getFullYear())*12+n.getMonth()-d.getMonth();if(n.getDate()<d.getDate())m--;return m<0?"":Math.floor(m/12)+" yrs, "+m%12+" mos"}
+let me=null,role="",mem=[],unsub=null,sort={k:"nickname",d:1};
+const flt={q:"",mo:"",g:"",cs:"",bt:"",md:"",st:""};
+const isAdm=()=>role=="superadmin"||role=="admin";
+const show=id=>{["login","wait","reg","app"].forEach(x=>$("#"+x).hidden=x!=id)};
+const close=()=>$("#ov").hidden=true;
+const open=h=>{$("#mc").innerHTML=h;$("#ov").hidden=false};
+$("#ov").onclick=e=>{if(e.target.id=="ov")close()};
+
+/* theme */
+const setTheme=t=>{document.documentElement.dataset.theme=t;localStorage.theme=t};
+setTheme(localStorage.theme||(matchMedia("(prefers-color-scheme:dark)").matches?"dark":"light"));
+$("#th").onclick=()=>setTheme(document.documentElement.dataset.theme=="dark"?"light":"dark");
+
+/* ===== 4. AUTH ===== */
+$("#gbtn").onclick=()=>auth.signInWithPopup(new firebase.auth.GoogleAuthProvider()).catch(e=>$("#lerr").textContent=e.message);
+$("#lo").onclick=()=>auth.signOut();
+auth.onAuthStateChanged(async u=>{
+  if(unsub){unsub();unsub=null}
+  me=u;
+  if(!u){route();return}
+  try{
+    const ref=db.collection("users").doc(u.uid);let s=await ref.get();
+    if(!s.exists){await ref.set({email:u.email,name:u.displayName||"",role:u.email==SUPER_ADMIN?"superadmin":"pending",created:Date.now()});s=await ref.get()}
+    role=s.data().role;
+  }catch(e){$("#lerr").textContent="Error: "+e.message;show("login");return}
+  if(role=="pending"){show("wait");return}
+  startApp();
+});
+function route(){
+  if(location.hash=="#register"){show("reg");$("#rform").innerHTML=formHTML({},true)+'<div class="acts"><button class="y" type="submit">Submit registration</button></div>';bindForm($("#rform"))}
+  else show("login");
+}
+addEventListener("hashchange",()=>{if(!me)route()});
+$("#toLogin").onclick=()=>{location.hash=""};
+
+/* ===== 5. FORM ===== */
+function formHTML(m,pub){
+  let h="";
+  GROUPS.forEach((gn,gi)=>{
+    const fs=F.filter(f=>f.g==gi&&!(pub&&f.adm));if(!fs.length)return;
+    h+=`<div class="gt">${gn}</div><div class="grid">`;
+    fs.forEach(f=>{
+      const v=m[f.k]??"";let inp;
+      if(f.t=="sel")inp=`<select name="${f.k}"><option value="">--</option>${f.o.map(o=>`<option ${o==v?"selected":""}>${o}</option>`).join("")}</select>`;
+      else inp=`<input name="${f.k}" type="${f.t||"text"}" value="${esc(v)}" ${f.req?"required":""}>`;
+      h+=`<div class="${f.w?"w":""}"><label>${f.l}${f.req?" *":""}</label>${inp}${f.k=="birthdate"?'<small id="ageOut" style="color:var(--mut)">'+age(v)+'</small>':""}</div>`;
+    });
+    h+="</div>";
+  });
+  h+='<div class="gt">Agreements (required)</div>'+CK.map(([k,t])=>`<label class="ck"><input type="checkbox" name="ck_${k}" ${m["ck_"+k]?"checked":""}> ${t}</label>`).join("");
+  return h;
+}
+function bindForm(f){
+  const b=f.querySelector("[name=birthdate]");
+  if(b)b.oninput=()=>f.querySelector("#ageOut").textContent=age(b.value);
+}
+function readForm(f){
+  const d={};
+  F.forEach(x=>{const e=f.elements[x.k];if(e)d[x.k]=e.value.trim()});
+  CK.forEach(([k])=>d["ck_"+k]=f.elements["ck_"+k].checked);
+  return d;
+}
+function checksOk(d){return CK.every(([k])=>d["ck_"+k])}
+
+$("#rform").onsubmit=async e=>{
+  e.preventDefault();const d=readForm(e.target);
+  if(!checksOk(d))return alert("Lagyan ng check lahat ng agreements.");
+  try{
+    await db.collection("members").add({...d,status:"Pending",dateJoined:today(),consentDate:today(),createdAt:Date.now()});
+    $("#reg").innerHTML='<img src="logo.jpg" style="width:140px"><h2>Salamat!</h2><p>Naipadala na ang registration mo. Hintayin ang approval ng admin.</p><a href="#" onclick="location.reload()">Bumalik</a>';
+  }catch(err){alert("Hindi na-save: "+err.message)}
+};
+
+/* ===== 6. MEMBERS VIEW ===== */
+function startApp(){
+  show("app");
+  $("#who").innerHTML=esc(me.email)+' <span class="pill">'+role+'</span>';
+  $("#add").hidden=$("#csv").hidden=!isAdm();
+  $("#nu").hidden=role!="superadmin";
+  const sel=(id,label,opts)=>{$(id).innerHTML=`<option value="">${label}</option>`+opts.map(o=>`<option value="${Array.isArray(o)?o[0]:o}">${Array.isArray(o)?o[1]:o}</option>`).join("")};
+  sel("#fmo","Birth month",MO.map((m,i)=>[i+1,m]));
+  sel("#fg","Gender",F[3].o);sel("#fcs","Civil status",F[4].o);
+  sel("#fbt","Blood type",F[14].o);sel("#fmd","Medical condition",["Yes","No"]);
+  sel("#fst","Status",["Active","Inactive","Pending"]);
+  $("#fbt").hidden=$("#fmd").hidden=role=="viewer";
+  $("#thead").innerHTML="<tr>"+COLS.map(([k,l])=>`<th data-k="${k}">${l}</th>`).join("")+"</tr>";
+  $("#thead").onclick=e=>{const k=e.target.dataset.k;if(!k)return;sort={k,d:sort.k==k?-sort.d:1};draw()};
+  unsub=db.collection("members").onSnapshot(s=>{mem=s.docs.map(d=>({id:d.id,...d.data()}));draw()},e=>alert("Hindi ma-load ang members: "+e.message));
+}
+const map={q:"#q",mo:"#fmo",g:"#fg",cs:"#fcs",bt:"#fbt",md:"#fmd",st:"#fst"};
+Object.entries(map).forEach(([k,id])=>$(id).oninput=e=>{flt[k]=e.target.value;draw()});
+$("#clr").onclick=()=>{Object.keys(flt).forEach(k=>{flt[k]="";$(map[k]).value=""});draw()};
+
+function rows(){
+  const q=flt.q.toLowerCase();
+  return mem.filter(m=>
+    (!q||[m.fullname,m.nickname,m.dupr,m.phone,m.email].join(" ").toLowerCase().includes(q))&&
+    (!flt.mo||m.birthdate&&+m.birthdate.slice(5,7)==+flt.mo)&&
+    (!flt.g||m.gender==flt.g)&&(!flt.cs||m.civil==flt.cs)&&(!flt.bt||m.blood==flt.bt)&&
+    (!flt.st||m.status==flt.st)&&(!flt.md||(flt.md=="Yes")==(m.hasCond=="Yes"))
+  ).sort((a,b)=>String(a[sort.k]||"").localeCompare(String(b[sort.k]||""),undefined,{numeric:true,sensitivity:"base"})*sort.d);
+}
+function draw(){
+  const cm=new Date().getMonth()+1,bd=mem.filter(m=>m.birthdate&&+m.birthdate.slice(5,7)==cm);
+  $("#stats").innerHTML=
+   `<button class="st" onclick="quick('st','')"><b>${mem.length}</b>Total members</button>`+
+   `<button class="st" onclick="quick('st','Active')"><b>${mem.filter(m=>m.status=="Active").length}</b>Active</button>`+
+   `<button class="st" onclick="quick('mo',${cm})"><b>${bd.length}</b>Birthdays in ${MO[cm-1]}</button>`+
+   `<button class="st" onclick="quick('st','Pending')"><b>${mem.filter(m=>m.status=="Pending").length}</b>Pending approval</button>`;
+  const r=rows();
+  $("#tb").innerHTML=r.length?r.map(m=>`<tr onclick="view('${m.id}')"><td><b>${esc(m.nickname)}</b></td><td>${esc(m.fullname)}</td><td>${age(m.birthdate)}</td><td>${esc(m.gender)}</td><td>${esc(m.dupr)}</td><td>${esc(m.phone)}</td><td><span class="pill s-${m.status}">${esc(m.status)}</span></td></tr>`).join(""):'<tr><td colspan="7" style="text-align:center;padding:24px">Walang nahanap. Subukang i-clear ang filters.</td></tr>';
+  $("#count").textContent=r.length+" of "+mem.length+" members";
+}
+function quick(k,v){Object.keys(flt).forEach(x=>{flt[x]="";$(map[x]).value=""});flt[k]=v;$(map[k]).value=v;draw()}
+
+/* modal: view */
+function view(id){
+  const m=mem.find(x=>x.id==id);if(!m)return;
+  let h=`<h2>${esc(m.fullname)} ${m.nickname?'<span style="color:var(--o)">"'+esc(m.nickname)+'"</span>':""}</h2><span class="pill s-${m.status}">${esc(m.status)}</span>`;
+  GROUPS.forEach((gn,gi)=>{
+    const fs=F.filter(f=>f.g==gi&&!(f.s&&role=="viewer"));if(!fs.length)return;
+    h+=`<div class="gt">${gn}</div><div class="grid">`+fs.map(f=>`<div class="${f.w?"w":""}"><label>${f.l}</label><div class="v">${esc(m[f.k])||"—"}${f.k=="birthdate"&&m.birthdate?" ("+age(m.birthdate)+")":""}</div></div>`).join("")+"</div>";
+  });
+  h+=`<div class="gt">Agreements</div><div>${CK.map(([k,t])=>(m["ck_"+k]?"Yes: ":"No: ")+t).map(esc).join("<br>")}<br><small>Consent date: ${esc(m.consentDate)||"—"}</small></div>`;
+  if(role=="viewer")h+='<div class="lock">Ang address, emergency contact, at health info ay para sa admins lang.</div>';
+  h+='<div class="acts">';
+  if(isAdm()){
+    if(m.status=="Pending")h+=`<button class="y" onclick="approve('${id}')">Approve</button>`;
+    h+=`<button onclick="edit('${id}')">Edit</button><button class="r" onclick="del('${id}')">Delete</button><button class="g" onclick="print()">Print</button>`;
+  }
+  open(h+'<button class="g" onclick="close()">Close</button></div>');
+}
+/* modal: add/edit */
+function edit(id){
+  const m=id?mem.find(x=>x.id==id):{status:"Active",dateJoined:today()};
+  open(`<h2>${id?"Edit member":"Add member"}</h2><form id="mf">${formHTML(m)}<div class="acts"><button class="g" type="button" onclick="close()">Cancel</button><button class="y" type="submit">Save changes</button></div></form>`);
+  const f=$("#mf");bindForm(f);
+  f.onsubmit=async e=>{
+    e.preventDefault();const d=readForm(f);
+    if(!checksOk(d))return alert("Lagyan ng check lahat ng agreements.");
+    if(!id){d.createdAt=Date.now();d.consentDate=today()}
+    try{id?await db.collection("members").doc(id).update(d):await db.collection("members").add(d);close()}
+    catch(err){alert("Hindi na-save: "+err.message)}
+  };
+}
+$("#add").onclick=()=>edit();
+async function approve(id){await db.collection("members").doc(id).update({status:"Active"});close()}
+async function del(id){
+  const m=mem.find(x=>x.id==id);
+  if(confirm("I-delete si "+m.fullname+"? Hindi na ito mababalik.")){await db.collection("members").doc(id).delete();close()}
+}
+/* CSV */
+$("#csv").onclick=()=>{
+  const q=v=>'"'+String(v??"").replace(/"/g,'""')+'"';
+  const out=[F.map(f=>q(f.l)).join(",")].concat(rows().map(m=>F.map(f=>q(m[f.k])).join(",")));
+  const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([out.join("\n")],{type:"text/csv"}));a.download="ccpc-members-"+today()+".csv";a.click();
+};
+
+/* ===== 7. NAV + USERS (Super Admin) ===== */
+document.querySelectorAll("nav button").forEach(b=>b.onclick=()=>{
+  document.querySelectorAll("nav button").forEach(x=>x.classList.toggle("on",x==b));
+  $("#vm").hidden=b.dataset.v!="m";$("#vu").hidden=b.dataset.v!="u";
+  if(b.dataset.v=="u")loadUsers();
+});
+async function loadUsers(){
+  const s=await db.collection("users").get();
+  $("#vu").innerHTML='<h2>Users</h2><p>Bagong Gmail logins ay "pending" hanggang bigyan mo ng role.</p><div class="tw"><table><tr><th>Email</th><th>Name</th><th>Role</th><th></th></tr>'+
+  s.docs.map(d=>{const u=d.data();return `<tr><td>${esc(u.email)}</td><td>${esc(u.name)}</td><td><select onchange="setRole('${d.id}',this.value)">${["pending","viewer","admin","superadmin"].map(r=>`<option ${r==u.role?"selected":""}>${r}</option>`).join("")}</select></td><td><button class="r" onclick="rmUser('${d.id}')">Remove</button></td></tr>`}).join("")+"</table></div>";
+}
+async function setRole(id,r){await db.collection("users").doc(id).update({role:r})}
+async function rmUser(id){if(confirm("Alisin ang user na ito?")){await db.collection("users").doc(id).delete();loadUsers()}}
+</script>
+</body>
+</html>

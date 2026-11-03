@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CCPC Special Awards Voting</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;600&family=Barlow+Condensed:wght@700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#081126;--panel:#101f45;--line:#24407f;--blue:#2b7bff;--sky:#4cc3ff;--gold:#ffc83d;--ink:#eef4ff;--mute:#9db6e6}
+*{box-sizing:border-box;margin:0}
+body{min-height:100vh;background:radial-gradient(120% 60% at 50% -10%,#16306b,var(--bg) 60%);color:var(--ink);font:17px/1.45 'Barlow',system-ui,sans-serif;padding:20px 16px 40px}
+main{max-width:480px;margin:0 auto}
+.top{text-align:center;margin-bottom:18px}
+.top img{height:84px;object-fit:contain;margin-bottom:6px}
+h1{font:700 30px/1.05 'Barlow Condensed',sans-serif;letter-spacing:.02em}
+.sub{color:var(--sky);font:700 16px 'Barlow Condensed';letter-spacing:.25em;text-transform:uppercase;margin-top:4px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:18px;margin-bottom:14px}
+h2{font:700 24px/1.1 'Barlow Condensed',sans-serif;color:var(--gold);margin-bottom:6px}
+p{color:var(--mute)}
+input,select{width:100%;margin-top:12px;background:#0b1733;border:1.5px solid var(--line);color:var(--ink);border-radius:12px;padding:14px;font:inherit;font-size:18px}
+#code{text-align:center;letter-spacing:.35em;text-transform:uppercase;font:700 28px 'Barlow Condensed'}
+input:focus-visible,select:focus-visible,button:focus-visible{outline:3px solid var(--sky);outline-offset:2px}
+button{width:100%;margin-top:14px;font:700 22px 'Barlow Condensed',sans-serif;letter-spacing:.04em;border:0;border-radius:12px;padding:14px;color:#fff;background:linear-gradient(90deg,var(--blue),var(--sky));cursor:pointer}
+button:disabled{opacity:.5}
+.err{color:#ff8f8f;margin-top:10px;min-height:1.4em}
+.msg{text-align:center;padding:28px 18px}
+.msg h2{font-size:30px}
+</style>
+</head>
+<body>
+<main>
+  <div class="top"><img src="ccpc-logo.png" alt="" onerror="this.remove()"><h1>CCPC 2nd Team Tournament</h1><div class="sub">Special Awards Voting</div></div>
+  <section id="view" aria-live="polite"></section>
+</main>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+<script src="firebase-config.js"></script>
+<script>
+const root = db.ref('tournament'), $ = s => document.querySelector(s), AW = ['a1', 'a2', 'a3'];
+let status = null, names = {}, awards = {}, code = null, myTeam = null, step = 'code', sel = {};
+const esc = v => String(v == null ? '' : v).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const aw = id => ({ name: (awards[id] && awards[id].name) || 'Award ' + id.slice(1), desc: (awards[id] && awards[id].desc) || '' });
+const msg = (t, p) => { $('#view').innerHTML = `<div class="card msg"><h2>${t}</h2><p>${p}</p></div>`; };
+
+function draw() {
+  if (status === null) return msg('Loading', 'Please wait a moment.');
+  if (step === 'done') return msg('Thank you', 'Your votes have been recorded. Enjoy the event.');
+  if (status === 'pending') return msg('Voting has not started', 'Please wait. Voting will open soon. Keep this page open.');
+  if (status === 'closed') return msg('Voting is closed', 'Thank you for your interest. Voting has ended.');
+  if (step === 'code') return drawCode();
+  drawBallot();
+}
+function drawCode() {
+  $('#view').innerHTML = `<div class="card"><h2>Enter your voting code</h2><p>Use the 6-character code on your voting card. Each code can be used one time.</p>
+    <input id="code" maxlength="6" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="CODE"><div class="err" id="err" role="alert"></div><button id="go">Continue</button></div>`;
+  const go = async () => {
+    const c = $('#code').value.trim().toUpperCase(), err = t => { $('#err').textContent = t; $('#go').disabled = false; };
+    if (!/^[A-Z0-9]{6}$/.test(c)) return err('Please enter a valid 6-character code.');
+    $('#go').disabled = true; $('#err').textContent = '';
+    try {
+      const [cs, vs] = await Promise.all([root.child('codes/' + c).once('value'), root.child('votes/' + c).once('value')]);
+      if (!cs.exists()) return err('This code is not valid. Please check and try again.');
+      if (vs.exists()) return err('This code has already been used.');
+      code = c; myTeam = cs.val().team; step = 'ballot'; draw();
+    } catch (e) { err('Connection problem. Please try again.'); }
+  };
+  $('#go').addEventListener('click', go); $('#code').addEventListener('keydown', e => { if (e.key === 'Enter') go(); }); $('#code').focus();
+}
+function drawBallot() {
+  const opts = Object.entries(names).filter(([id]) => id !== myTeam).sort((a, b) => String(a[1]).localeCompare(String(b[1])));
+  $('#view').innerHTML = AW.map(id => { const a = aw(id); return `<div class="card"><h2>${esc(a.name)}</h2>${a.desc ? `<p>${esc(a.desc)}</p>` : ''}
+    <select data-a="${id}" aria-label="${esc(a.name)}"><option value="">Select a team</option>${opts.map(([t, n]) => `<option value="${esc(t)}"${sel[id] === t ? ' selected' : ''}>${esc(n)}</option>`).join('')}</select></div>`; }).join('') +
+    `<p style="text-align:center">You cannot vote for your own team. Votes are final after you submit.</p><div class="err" id="err" role="alert" style="text-align:center"></div><button id="submit">Submit my votes</button>`;
+  document.querySelectorAll('select').forEach(s => s.addEventListener('change', () => { sel[s.dataset.a] = s.value; }));
+  $('#submit').addEventListener('click', submit);
+}
+async function submit() {
+  const err = t => { $('#err').textContent = t; $('#submit').disabled = false; };
+  if (AW.some(id => !sel[id] || !names[sel[id]] || sel[id] === myTeam)) return err('Please select a team for every award.');
+  if (!confirm('Submit your votes? You cannot change them after this.')) return;
+  $('#submit').disabled = true;
+  try {
+    const st = (await root.child('vote/status').once('value')).val() || 'pending';
+    if (st !== 'open') { status = st; return draw(); }
+    const res = await root.child('votes/' + code).transaction(cur => (cur ? undefined : { a1: sel.a1, a2: sel.a2, a3: sel.a3, t: Date.now() }));
+    if (res.committed) { step = 'done'; draw(); } else err('This code has already been used.');
+  } catch (e) { err('Connection problem. Please try again.'); }
+}
+root.child('vote/status').on('value', s => { status = s.val() || 'pending'; draw(); }, () => msg('Connection problem', 'Please check your internet and refresh the page.'));
+root.child('teamNames').on('value', s => { names = s.val() || {}; if (step === 'ballot' && status === 'open') drawBallot(); });
+root.child('awards').on('value', s => { awards = s.val() || {}; if (step === 'ballot' && status === 'open') drawBallot(); });
+draw();
+</script>
+</body>
+</html>

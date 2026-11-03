@@ -1,0 +1,683 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Membership Application</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#FAF8F2;
+    --paper:#FFFFFF;
+    --ink:#0F2B3D;
+    --ink-soft:#5C7480;
+    --line:#E4E1D6;
+    --line-strong:#D2CDBB;
+    --accent:#083D5F;
+    --accent-dark:#062C40;
+    --accent-tint:#E7F0F4;
+    --danger:#BB1421;
+    --danger-tint:#FBEAEA;
+    --radius:10px;
+    --shadow:0 1px 2px rgba(8,61,95,0.05), 0 8px 24px rgba(8,61,95,0.06);
+    --serif: 'Fredoka', -apple-system, BlinkMacSystemFont, sans-serif;
+    --sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  }
+
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--bg);
+    color:var(--ink);
+    font-family:var(--sans);
+    line-height:1.5;
+    -webkit-font-smoothing:antialiased;
+    padding:48px 20px 96px;
+  }
+
+  .wrap{
+    max-width:720px;
+    margin:0 auto;
+  }
+
+  /* Header */
+  .masthead{
+    border-bottom:2px solid var(--ink);
+    padding-bottom:22px;
+    margin-bottom:36px;
+  }
+  .masthead .org-line{
+    display:flex;
+    justify-content:space-between;
+    align-items:baseline;
+    gap:12px;
+    flex-wrap:wrap;
+  }
+  .masthead h1{
+    font-family:var(--serif);
+    font-weight:600;
+    font-size:30px;
+    letter-spacing:-0.01em;
+    margin:0 0 6px;
+  }
+  .masthead .doc-type{
+    font-size:13px;
+    color:var(--ink-soft);
+    white-space:nowrap;
+  }
+  .masthead p.lede{
+    margin:8px 0 0;
+    color:var(--ink-soft);
+    font-size:15px;
+    max-width:56ch;
+  }
+
+  /* Card / sections */
+  .card{
+    background:var(--paper);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    box-shadow:var(--shadow);
+    overflow:hidden;
+  }
+
+  .section{
+    padding:28px 32px;
+    border-bottom:1px solid var(--line);
+  }
+  .section:last-child{border-bottom:none;}
+
+  .section h2{
+    font-family:var(--serif);
+    font-size:19px;
+    font-weight:600;
+    margin:0 0 4px;
+    color:var(--ink);
+  }
+  .section .section-note{
+    font-size:13.5px;
+    color:var(--ink-soft);
+    margin:0 0 20px;
+  }
+
+  .row{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:18px;
+  }
+  .row.single{grid-template-columns:1fr;}
+  .row + .row{margin-top:18px;}
+  @media (max-width:560px){
+    .row{grid-template-columns:1fr;}
+  }
+
+  .field{display:flex; flex-direction:column; gap:6px;}
+  .field label{
+    font-size:13px;
+    font-weight:600;
+    color:var(--ink);
+  }
+  .field .hint{
+    font-size:12px;
+    color:var(--ink-soft);
+    font-weight:400;
+  }
+  .req{color:var(--accent-dark); font-weight:600;}
+
+  input[type=text],
+  input[type=email],
+  input[type=tel],
+  input[type=number],
+  input[type=date],
+  textarea,
+  select{
+    font-family:var(--sans);
+    font-size:14.5px;
+    color:var(--ink);
+    background:#FCFCFB;
+    border:1px solid var(--line-strong);
+    border-radius:7px;
+    padding:10px 12px;
+    width:100%;
+    transition:border-color .15s ease, box-shadow .15s ease;
+  }
+  textarea{resize:vertical; min-height:64px; font-family:var(--sans);}
+
+  input:focus, textarea:focus, select:focus{
+    outline:none;
+    border-color:var(--accent);
+    box-shadow:0 0 0 3px var(--accent-tint);
+  }
+
+  input[readonly]{
+    background:#F1F2EE;
+    color:var(--ink-soft);
+  }
+
+  select{appearance:none; -webkit-appearance:none;
+    background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='14' height='9'><path d='M1 1l6 6 6-6' stroke='%235B6570' stroke-width='1.6' fill='none' fill-rule='evenodd'/></svg>");
+    background-repeat:no-repeat;
+    background-position:right 12px center;
+    padding-right:32px;
+  }
+
+  /* Choice pills (gender, civil status, blood type, yes/no) */
+  .choice-group{display:flex; flex-wrap:wrap; gap:8px;}
+  .choice-group input[type=radio]{position:absolute; opacity:0; pointer-events:none;}
+  .choice-group label.pill{
+    position:relative;
+    font-size:13.5px;
+    font-weight:500;
+    padding:8px 14px;
+    border:1px solid var(--line-strong);
+    border-radius:999px;
+    background:#FCFCFB;
+    cursor:pointer;
+    color:var(--ink-soft);
+    transition:all .15s ease;
+  }
+  .choice-group input[type=radio]:checked + label.pill,
+  .choice-group label.pill.is-checked{
+    background:var(--accent-tint);
+    border-color:var(--accent);
+    color:var(--accent-dark);
+  }
+  .choice-group label.pill:hover{border-color:var(--accent);}
+
+  /* Medication conditional */
+  #medicationField{display:none;}
+  #medicationField.show{display:flex;}
+
+  /* Declarations */
+  .declaration{
+    display:flex;
+    gap:12px;
+    padding:14px 0;
+    border-bottom:1px solid var(--line);
+  }
+  .declaration:last-child{border-bottom:none;}
+  .declaration input[type=checkbox]{
+    margin-top:2px;
+    width:17px;
+    height:17px;
+    accent-color:var(--accent);
+    flex-shrink:0;
+    cursor:pointer;
+  }
+  .declaration label{
+    font-size:14px;
+    color:var(--ink);
+    cursor:pointer;
+  }
+  .declaration .req-mark{color:var(--accent-dark); font-weight:600;}
+
+  .fb-name-field{
+    margin-top:10px;
+    margin-left:29px;
+    display:none;
+  }
+  .fb-name-field.show{display:block; max-width:320px;}
+
+  /* Submit area */
+  .submit-bar{
+    padding:26px 32px 32px;
+    display:flex;
+    flex-direction:column;
+    gap:14px;
+  }
+  .error-banner{
+    display:none;
+    background:var(--danger-tint);
+    border:1px solid #E3B8A9;
+    color:var(--danger);
+    font-size:13.5px;
+    padding:12px 14px;
+    border-radius:7px;
+  }
+  .error-banner.show{display:block;}
+
+  button.submit{
+    font-family:var(--sans);
+    font-weight:700;
+    font-size:15px;
+    color:#fff;
+    background:var(--accent);
+    border:none;
+    border-radius:7px;
+    padding:14px 20px;
+    cursor:pointer;
+    transition:background .15s ease;
+  }
+  button.submit:hover{background:var(--accent-dark);}
+  button.submit:disabled{background:#8A9BA8; cursor:not-allowed;}
+
+  .fine-print{
+    font-size:12px;
+    color:var(--ink-soft);
+    text-align:center;
+  }
+
+  /* Success state */
+  .success-screen{
+    display:none;
+    text-align:center;
+    padding:64px 32px;
+  }
+  .success-screen.show{display:block;}
+  .success-screen .mark{
+    width:52px; height:52px;
+    border-radius:50%;
+    background:var(--accent-tint);
+    border:1px solid var(--accent);
+    display:flex; align-items:center; justify-content:center;
+    margin:0 auto 20px;
+  }
+  .success-screen h2{
+    font-family:var(--serif);
+    font-size:22px;
+    margin:0 0 8px;
+  }
+  .success-screen p{color:var(--ink-soft); font-size:14.5px; max-width:40ch; margin:0 auto;}
+
+  form.hide, .card.hide{display:none;}
+
+  /* Config warning banner (only shows if Firebase isn't configured) */
+  .config-warning{
+    display:none;
+    background:#FBF4E4;
+    border:1px solid #E4CC8F;
+    color:#7A5A0F;
+    font-size:13px;
+    padding:12px 16px;
+    border-radius:8px;
+    margin-bottom:20px;
+  }
+  .config-warning.show{display:block;}
+  .config-warning code{
+    background:#F3E4BC;
+    padding:1px 5px;
+    border-radius:4px;
+    font-size:12px;
+  }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+  <div class="masthead">
+    <div class="org-line">
+      <h1>CCPC Membership Application</h1>
+      <span class="doc-type">Form No. CCPC‑01</span>
+    </div>
+    <p class="lede">Please complete every required field accurately. Your information is stored securely and used only for membership records.</p>
+  </div>
+
+  <div id="configWarning" class="config-warning">
+    Firebase isn't connected yet — this form will not save submissions. Open this file and fill in the <code>firebaseConfig</code> object near the bottom with your project's credentials.
+  </div>
+
+  <div class="card" id="formCard">
+    <form id="membershipForm">
+
+      <!-- SECTION: Identity -->
+      <div class="section">
+        <h2>Personal Information</h2>
+        <p class="section-note">Basic details used to identify you as a member.</p>
+
+        <div class="row">
+          <div class="field">
+            <label for="fullName">Full name <span class="req">*</span></label>
+            <input type="text" id="fullName" name="fullName" required autocomplete="name" />
+          </div>
+          <div class="field">
+            <label for="nickname">Nickname</label>
+            <input type="text" id="nickname" name="nickname" />
+          </div>
+        </div>
+
+        <div class="row" style="margin-top:18px;">
+          <div class="field">
+            <label for="birthdate">Birthdate <span class="req">*</span></label>
+            <input type="date" id="birthdate" name="birthdate" required />
+          </div>
+          <div class="field">
+            <label for="age">Age</label>
+            <input type="text" id="age" name="age" readonly placeholder="Auto-computed" />
+          </div>
+        </div>
+
+        <div class="row" style="margin-top:18px;">
+          <div class="field">
+            <label>Gender <span class="req">*</span></label>
+            <div class="choice-group" id="genderGroup">
+              <input type="radio" name="gender" id="gender-male" value="Male" required>
+              <label class="pill" for="gender-male">Male</label>
+              <input type="radio" name="gender" id="gender-female" value="Female">
+              <label class="pill" for="gender-female">Female</label>
+              <input type="radio" name="gender" id="gender-other" value="Other">
+              <label class="pill" for="gender-other">Other</label>
+            </div>
+          </div>
+          <div class="field">
+            <label>Civil status <span class="req">*</span></label>
+            <div class="choice-group" id="civilGroup">
+              <input type="radio" name="civilStatus" id="cs-single" value="Single" required>
+              <label class="pill" for="cs-single">Single</label>
+              <input type="radio" name="civilStatus" id="cs-married" value="Married">
+              <label class="pill" for="cs-married">Married</label>
+              <input type="radio" name="civilStatus" id="cs-widowed" value="Widowed">
+              <label class="pill" for="cs-widowed">Widowed</label>
+              <input type="radio" name="civilStatus" id="cs-separated" value="Separated">
+              <label class="pill" for="cs-separated">Separated</label>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SECTION: Contact -->
+      <div class="section">
+        <h2>Contact Details</h2>
+        <p class="section-note">How we'll reach you and who to notify in an emergency.</p>
+
+        <div class="row">
+          <div class="field">
+            <label for="phone">Phone number <span class="req">*</span></label>
+            <input type="tel" inputmode="numeric" id="phone" name="phone" required placeholder="09xxxxxxxxx" />
+          </div>
+          <div class="field">
+            <label for="email">Email address <span class="req">*</span></label>
+            <input type="email" id="email" name="email" required autocomplete="email" />
+          </div>
+        </div>
+
+        <div class="row single" style="margin-top:18px;">
+          <div class="field">
+            <label for="address">Home address <span class="req">*</span></label>
+            <textarea id="address" name="address" required></textarea>
+          </div>
+        </div>
+
+        <div class="row" style="margin-top:18px;">
+          <div class="field">
+            <label for="emergencyContact">Emergency contact &amp; relationship <span class="req">*</span></label>
+            <input type="text" id="emergencyContact" name="emergencyContact" placeholder="e.g. Maria Santos – Mother" required />
+          </div>
+          <div class="field">
+            <label for="emergencyNumber">Contact number <span class="req">*</span></label>
+            <input type="tel" inputmode="numeric" id="emergencyNumber" name="emergencyNumber" required placeholder="09xxxxxxxxx" />
+          </div>
+        </div>
+      </div>
+
+      <!-- SECTION: Health -->
+      <div class="section">
+        <h2>Health Information</h2>
+        <p class="section-note">Helps us respond appropriately in case of a medical concern.</p>
+
+        <div class="row">
+          <div class="field">
+            <label for="height">Height (cm) <span class="req">*</span></label>
+            <input type="number" id="height" name="height" min="0" step="0.1" required />
+          </div>
+          <div class="field">
+            <label for="weight">Weight (kg) <span class="req">*</span></label>
+            <input type="number" id="weight" name="weight" min="0" step="0.1" required />
+          </div>
+        </div>
+
+        <div class="row" style="margin-top:18px;">
+          <div class="field">
+            <label>Blood type <span class="req">*</span></label>
+            <select id="bloodType" name="bloodType" required>
+              <option value="" disabled selected>Select</option>
+              <option>A+</option><option>A-</option>
+              <option>B+</option><option>B-</option>
+              <option>AB+</option><option>AB-</option>
+              <option>O+</option><option>O-</option>
+              <option>Unknown</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Medical condition <span class="req">*</span></label>
+            <div class="choice-group" id="medicalGroup">
+              <input type="radio" name="medicalCondition" id="med-yes" value="Yes" required>
+              <label class="pill" for="med-yes">Yes</label>
+              <input type="radio" name="medicalCondition" id="med-no" value="No">
+              <label class="pill" for="med-no">No</label>
+            </div>
+          </div>
+        </div>
+
+        <div class="row single" id="medicationField" style="margin-top:18px;">
+          <div class="field">
+            <label for="medication">Medication</label>
+            <input type="text" id="medication" name="medication" placeholder="List current medication, if any" />
+          </div>
+        </div>
+      </div>
+
+      <!-- SECTION: Declarations -->
+      <div class="section">
+        <h2>Declarations</h2>
+        <p class="section-note">Please read and confirm each statement below.</p>
+
+        <div class="declaration">
+          <input type="checkbox" id="declFit" name="declFit" required />
+          <label for="declFit">I confirm that I am physically fit to participate in the club's activities. <span class="req-mark">*</span></label>
+        </div>
+        <div class="declaration">
+          <input type="checkbox" id="declRules" name="declRules" required />
+          <label for="declRules">I agree to follow the rules and guidelines set by the organization. <span class="req-mark">*</span></label>
+        </div>
+        <div class="declaration">
+          <input type="checkbox" id="declLiability" name="declLiability" required />
+          <label for="declLiability">I release the organization from liability for any injury or loss incurred during activities. <span class="req-mark">*</span></label>
+        </div>
+        <div class="declaration">
+          <input type="checkbox" id="declFacebook" name="declFacebook" />
+          <label for="declFacebook">Add me to the club's Facebook group using the name below.</label>
+        </div>
+        <div class="fb-name-field" id="fbNameField">
+          <input type="text" id="facebookName" name="facebookName" placeholder="Facebook name" />
+        </div>
+      </div>
+
+      <div class="submit-bar">
+        <div class="error-banner" id="errorBanner"></div>
+        <button type="submit" class="submit" id="submitBtn">Submit application</button>
+        <p class="fine-print">By submitting, you confirm that the information provided above is true and correct.</p>
+      </div>
+
+    </form>
+
+    <div class="success-screen" id="successScreen">
+      <div class="mark">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M4 12.5L9.5 18L20 6" stroke="#083D5F" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+      <h2>Application received</h2>
+      <p>Thank you — your membership application has been submitted. Our team will review it and get in touch with you shortly.</p>
+    </div>
+  </div>
+
+</div>
+
+<!-- ============================================================ -->
+<!-- Firebase (v10, compat build for simple single-file use)       -->
+<!-- ============================================================ -->
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore-compat.js"></script>
+
+<script>
+/* ============================================================
+   1) PASTE YOUR FIREBASE PROJECT CONFIG HERE
+   Firebase Console → Project settings → General → Your apps → SDK setup and config
+   ============================================================ */
+const firebaseConfig = {
+  apiKey: "AIzaSyB4IiCCQHtGeIT44n71oGlKk7PIOSWxfg8",
+  authDomain: "ccpc-1943f.firebaseapp.com",
+  databaseURL: "https://ccpc-1943f-default-rtdb.firebaseio.com",
+  projectId: "ccpc-1943f",
+  storageBucket: "ccpc-1943f.firebasestorage.app",
+  messagingSenderId: "904942754236",
+  appId: "1:904942754236:web:aecbec51d5cd0b745b33b9"
+};
+
+const FIRESTORE_COLLECTION = "membershipApplications"; // change if you want a different collection name
+
+let db = null;
+let firebaseReady = false;
+
+(function initFirebase(){
+  const looksUnconfigured = !firebaseConfig.apiKey || firebaseConfig.apiKey === "YOUR_API_KEY";
+  if (looksUnconfigured) {
+    document.getElementById('configWarning').classList.add('show');
+    return;
+  }
+  try {
+    firebase.initializeApp(firebaseConfig);
+    db = firebase.firestore();
+    firebaseReady = true;
+  } catch (err) {
+    console.error("Firebase init failed:", err);
+    document.getElementById('configWarning').classList.add('show');
+  }
+})();
+
+/* ============================================================
+   2) Small UI behaviors
+   ============================================================ */
+
+// Style radio pills as checked/unchecked (handles keyboard + click)
+document.querySelectorAll('.choice-group').forEach(group => {
+  group.addEventListener('change', () => {
+    group.querySelectorAll('label.pill').forEach(l => l.classList.remove('is-checked'));
+    const checked = group.querySelector('input[type=radio]:checked');
+    if (checked) {
+      const label = group.querySelector(`label[for="${checked.id}"]`);
+      if (label) label.classList.add('is-checked');
+    }
+  });
+});
+
+// Auto-compute age from birthdate
+const birthdateInput = document.getElementById('birthdate');
+const ageInput = document.getElementById('age');
+birthdateInput.addEventListener('change', () => {
+  const dob = new Date(birthdateInput.value);
+  if (isNaN(dob.getTime())) { ageInput.value = ''; return; }
+  const today = new Date();
+  let age = today.getFullYear() - dob.getFullYear();
+  const m = today.getMonth() - dob.getMonth();
+  if (m < 0 || (m === 0 && today.getDate() < dob.getDate())) age--;
+  ageInput.value = age >= 0 ? age : '';
+});
+
+// Show/hide medication field based on medical condition
+document.querySelectorAll('input[name="medicalCondition"]').forEach(radio => {
+  radio.addEventListener('change', () => {
+    const show = document.getElementById('med-yes').checked;
+    document.getElementById('medicationField').classList.toggle('show', show);
+  });
+});
+
+// Show/hide Facebook name field
+document.getElementById('declFacebook').addEventListener('change', (e) => {
+  document.getElementById('fbNameField').classList.toggle('show', e.target.checked);
+});
+
+/* ============================================================
+   3) Submit handler
+   ============================================================ */
+const form = document.getElementById('membershipForm');
+const submitBtn = document.getElementById('submitBtn');
+const errorBanner = document.getElementById('errorBanner');
+const formCard = document.getElementById('formCard');
+const successScreen = document.getElementById('successScreen');
+
+function showError(msg){
+  errorBanner.textContent = msg;
+  errorBanner.classList.add('show');
+}
+function clearError(){
+  errorBanner.classList.remove('show');
+  errorBanner.textContent = '';
+}
+
+form.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  clearError();
+
+  if (!firebaseReady) {
+    showError("This form isn't connected to Firebase yet, so the submission can't be saved. Please fill in firebaseConfig in the HTML file first.");
+    return;
+  }
+
+  if (!form.checkValidity()) {
+    form.reportValidity();
+    return;
+  }
+
+  submitBtn.disabled = true;
+  submitBtn.textContent = "Submitting…";
+
+  // Fail fast instead of hanging forever if Firebase can't be reached
+  // (most often caused by default security rules blocking the request).
+  function withTimeout(promise, ms, label){
+    return Promise.race([
+      promise,
+      new Promise((_, reject) => setTimeout(() => reject(new Error(`Timed out ${label} (took longer than ${ms/1000}s). This usually means your Firestore/Storage security rules are blocking the request.`)), ms))
+    ]);
+  }
+
+  try {
+    const data = {
+      fullName: form.fullName.value.trim(),
+      nickname: form.nickname.value.trim(),
+      birthdate: form.birthdate.value,
+      age: ageInput.value ? Number(ageInput.value) : null,
+      gender: form.gender.value,
+      civilStatus: form.civilStatus.value,
+      phone: form.phone.value.trim(),
+      email: form.email.value.trim(),
+      address: form.address.value.trim(),
+      emergencyContact: form.emergencyContact.value.trim(),
+      emergencyNumber: form.emergencyNumber.value.trim(),
+      height: form.height.value ? Number(form.height.value) : null,
+      weight: form.weight.value ? Number(form.weight.value) : null,
+      bloodType: form.bloodType.value,
+      medicalCondition: form.medicalCondition.value,
+      medication: form.medication.value.trim(),
+      declarations: {
+        fit: form.declFit.checked,
+        followRules: form.declRules.checked,
+        notLiable: form.declLiability.checked,
+        joinFacebookGroup: form.declFacebook.checked
+      },
+      facebookName: form.declFacebook.checked ? form.facebookName.value.trim() : "",
+      submittedAt: firebase.firestore.FieldValue.serverTimestamp()
+    };
+
+    await withTimeout(db.collection(FIRESTORE_COLLECTION).add(data), 15000, "saving your application");
+
+    form.classList.add('hide');
+    successScreen.classList.add('show');
+
+  } catch (err) {
+    console.error(err);
+    let msg = "Something went wrong while submitting your application: " + err.message;
+    if (err.code === 'permission-denied' || (err.message && err.message.toLowerCase().includes('permission'))) {
+      msg = "Your submission was blocked by Firebase's security rules. The Firestore/Storage rules for this project need to allow writes — see the console for the exact error, or update your rules to allow it.";
+    }
+    showError(msg);
+    errorBanner.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    submitBtn.disabled = false;
+    submitBtn.textContent = "Submit application";
+  }
+});
+</script>
+
+</body>
+</html>

@@ -1,0 +1,57 @@
+[
+  {
+    "date": "2026-08-16",
+    "tag": "Fun Match",
+    "title": "CCPC x MTC Dual Meet",
+    "venue": "SM Paloo 4Ecom Center",
+    "desc": "An exhibition match against the Morning Tickle Club.",
+    "image": "thumb-tba.jpg",
+    "link": "https://calapanpickleball.github.io/CCPCxMTC/dualmeet.html"
+  },
+  {
+    "date": "2026-10-03",
+    "tag": "Fun Match",
+    "title": "Wrong Outfit, Wrong Paddle",
+    "venue": "PKL Box",
+    "desc": "A fun-themed open play where players come dressed in mismatched outfits and bring their “wrong” paddle, followed by competitive DUPR-rated games.",
+    "image": "thumb-wrong.jpg",
+    "link": "activities/wrongoutfit/index2.html"
+  },
+  {
+    "date": "2026-10-24",
+    "tag": "Tournament",
+    "title": "2nd Team Tournament",
+    "venue": "PKL Box",
+    "desc": "CCPC’s second team-based tournament, bringing players together to compete, build chemistry, and battle for the championship.",
+    "image": "thumb-2nd.jpg",
+    "link": "https://calapancitypickleball.club/activities/teamtournament/"
+  },
+  {
+    "date": "2026-11-14",
+    "tag": "Tournament",
+    "title": "CCPC x Stackers Dual Meet",
+    "venue": "PKL Box",
+    "desc": "A friendly but competitive dual meet bringing together pickleball players from CCPC and San Jose Stackers in the spirit of sportsmanship and camaraderie.",
+    "image": "thumb-dual.jpg",
+    "link": "https://calapanpickleball.github.io/ccpc/one-mindoro-dual-meet.html"
+  },
+  {
+    "date": "2026-10-10",
+    "tag": "Open Play",
+    "title": "SUPER DUPR",
+    "venue": "Balai Mindoro",
+    "desc": "A competitive DUPR Open play for those who have NR and low realibility DUPR rating.",
+    "image": "thumb-tba.jpg",
+    "link": ""
+  },
+  {
+    "date": "2026-11-05",
+    "tag": "Clinic",
+    "title": "Drills",
+    "venue": "TBA",
+    "desc": "A focused training session designed to improve fundamentals, technique, consistency, and game strategy through structured drills.",
+    "image": "thumb-tba.jpg",
+    "link": ""
+  }
+
+]

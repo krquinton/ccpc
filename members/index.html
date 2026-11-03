@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Members Database | Calapan City Pickleball Club</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--navy:#083D5F;--navy-deep:#062C40;--gold:#FAB813;--gold-dark:#E5A700;--orange:#FF6600;--blue:#3992B9;--red:#BB1421;
+--paper:#fff;--bg:#FAF8F2;--ink:#0F2B3D;--ink-soft:#5C7480;--line:#E4E1D6;--line-strong:#D2CDBB;
+--navy-tint:#E7F0F4;--gold-tint:#FEF3D9;--red-tint:#FBEAEA;--field:#FCFCFB;
+--shadow:0 1px 2px rgba(8,61,95,.05),0 10px 28px rgba(8,61,95,.07);
+--display:'Fredoka',-apple-system,sans-serif;--sans:'Inter',-apple-system,'Segoe UI',sans-serif}
+[data-theme=dark]{--navy:#3992B9;--bg:#06202f;--paper:#0b3049;--ink:#f2f6f9;--ink-soft:#9db6c8;--line:#1b4d6e;--line-strong:#2a6288;--navy-tint:#0f3a56;--gold-tint:#3a3010;--red-tint:#3d1a1e;--field:#08283b}
+*{box-sizing:border-box}html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);line-height:1.55;-webkit-font-smoothing:antialiased}
+[hidden]{display:none!important}
+h1,h2,h3{font-family:var(--display);margin:0}
+.strip{display:flex;height:5px}.strip span{flex:1}
+.strip span:nth-child(1){background:var(--gold)}.strip span:nth-child(2){background:var(--orange)}.strip span:nth-child(3){background:#083D5F}.strip span:nth-child(4){background:var(--blue)}.strip span:nth-child(5){background:var(--red)}
+/* nav */
+.nav{position:sticky;top:0;z-index:50;background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(6px);border-bottom:1px solid var(--line);padding:12px 28px;display:flex;align-items:center;gap:18px;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:10px;font:600 17px var(--display);color:var(--navy);text-decoration:none;margin-right:auto}
+.brand img{width:36px;height:36px;object-fit:contain}
+.tabs{display:inline-flex;gap:4px;background:var(--navy-tint);padding:4px;border-radius:999px}
+.tab{font:600 14px var(--sans);color:var(--ink-soft);background:transparent;border:0;padding:8px 18px;border-radius:999px;cursor:pointer}
+.tab.on{background:var(--navy);color:#fff}
+.tab i{font-style:normal;background:var(--red);color:#fff;border-radius:99px;padding:0 7px;font-size:11px;margin-left:5px}
+.who{font-size:12.5px;color:var(--ink-soft)}
+.role{display:inline-block;font-size:11px;font-weight:700;padding:2px 9px;border-radius:99px;background:var(--gold);color:var(--navy-deep);margin-left:4px}
+/* buttons */
+button{font-family:var(--sans)}
+.btn{border:0;border-radius:8px;padding:10px 18px;font-weight:700;font-size:14px;cursor:pointer;background:var(--navy);color:#fff}
+.btn:hover{filter:brightness(.92)}
+.btn.gold{background:var(--gold);color:var(--navy-deep)}.btn.red{background:var(--red)}
+.btn.line{background:transparent;color:var(--ink);border:1px solid var(--line-strong)}
+.btn.pill{border-radius:999px;padding:8px 16px;font-size:13.5px}
+:focus-visible{outline:3px solid var(--orange);outline-offset:2px}
+/* hero */
+.hero{background:#083D5F;background-image:radial-gradient(circle at 85% 20%,rgba(250,184,19,.14),transparent 55%);color:#fff;padding:34px 28px}
+.hero-in{max-width:1160px;margin:0 auto;display:flex;flex-wrap:wrap;gap:20px;align-items:flex-end;justify-content:space-between}
+.hero h1{font-size:clamp(26px,4vw,38px);font-weight:700;line-height:1.1}
+.hero p{margin:6px 0 0;color:rgba(255,255,255,.75)}
+.stats{display:flex;gap:30px;flex-wrap:wrap}
+.stat{background:none;border:0;color:#fff;text-align:left;cursor:pointer;padding:0}
+.stat .n{display:block;font:700 28px var(--display);color:var(--gold)}
+.stat .l{font-size:12.5px;color:rgba(255,255,255,.7)}
+/* layout */
+.wrap{max-width:1160px;margin:0 auto;padding:26px 28px 60px}
+.bar{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px}
+.bar input[type=search]{flex:2;min-width:220px}.bar select{flex:1;min-width:120px}
+input,select,textarea{font:14px var(--sans);color:var(--ink);background:var(--field);border:1px solid var(--line-strong);border-radius:7px;padding:9px 11px;width:100%}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--navy);box-shadow:0 0 0 3px var(--navy-tint)}
+.card{background:var(--paper);border:1px solid var(--line);border-radius:12px;box-shadow:var(--shadow);overflow:hidden}
+.tw{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th{background:var(--navy-tint);color:var(--navy);text-align:left;padding:11px 14px;font-size:12.5px;font-weight:700;cursor:pointer;white-space:nowrap}
+td{padding:11px 14px;border-top:1px solid var(--line)}
+tbody tr{cursor:pointer}tbody tr:hover{background:var(--navy-tint)}
+.tag{display:inline-block;font-size:11.5px;font-weight:700;padding:3px 10px;border-radius:99px;color:#fff}
+.t-Active{background:var(--blue)}.t-Inactive{background:#8B96A0}.t-New{background:var(--gold);color:var(--navy-deep)}
+.t-s0{background:var(--gold);color:var(--navy-deep)}.t-s1{background:#3992B9}.t-s2{background:var(--orange)}.t-s3{background:#083D5F;box-shadow:inset 0 0 0 1px var(--line-strong)}
+.steps{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px}
+.step{font-size:12px;font-weight:600;padding:5px 11px;border-radius:99px;border:1px solid var(--line-strong);color:var(--ink-soft)}
+.step.done{background:var(--navy-tint);color:var(--navy);border-color:var(--navy)}
+.step.cur{background:var(--gold);color:var(--navy-deep);border-color:var(--gold)}
+.or{display:flex;align-items:center;gap:10px;margin:18px 0 12px;color:var(--ink-soft);font-size:12.5px}.or:before,.or:after{content:"";flex:1;height:1px;background:var(--line)}
+.muted{color:var(--ink-soft);font-size:13px}
+.empty{text-align:center;padding:36px 20px;color:var(--ink-soft)}
+/* modal (same look as the club site's application form) */
+.ov{position:fixed;inset:0;background:rgba(8,61,95,.55);z-index:100;display:flex;align-items:flex-start;justify-content:center;padding:32px 16px;overflow-y:auto}
+.mb{background:var(--paper);border-radius:14px;max-width:680px;width:100%;box-shadow:0 30px 60px rgba(8,61,95,.35);margin:auto;position:relative}
+.x{position:absolute;top:14px;right:14px;width:34px;height:34px;border-radius:50%;border:1px solid var(--line-strong);background:var(--paper);color:var(--ink-soft);font-size:20px;cursor:pointer}
+.mh{padding:28px 32px 18px;border-bottom:2px solid var(--ink)}
+.mh h2{font-size:23px;font-weight:600;color:var(--navy)}
+.sec{padding:20px 32px;border-bottom:1px solid var(--line)}
+.sec h3{font-size:17px;font-weight:600;margin-bottom:12px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.grid .w{grid-column:1/-1}
+@media(max-width:560px){.grid{grid-template-columns:1fr}.mh,.sec{padding-left:20px;padding-right:20px}}
+.fld label,.k{font-size:12.5px;font-weight:600;display:block;margin-bottom:5px}
+.k{color:var(--ink-soft);font-weight:500;margin:0}.val{font-weight:600;word-break:break-word}
+.req{color:var(--navy)}
+.pills{display:flex;flex-wrap:wrap;gap:8px}
+.pills input{position:absolute;opacity:0;pointer-events:none;width:auto}
+.pills label{font-size:13px;font-weight:500;padding:7px 13px;border:1px solid var(--line-strong);border-radius:999px;background:var(--field);cursor:pointer;color:var(--ink-soft);margin:0}
+.pills input:checked+label{background:var(--navy-tint);border-color:var(--navy);color:var(--navy)}
+.dec{display:flex;gap:12px;padding:10px 0;border-bottom:1px solid var(--line);font-size:13.5px}
+.dec:last-child{border:0}.dec input{width:17px;height:17px;margin-top:2px;accent-color:var(--navy);flex-shrink:0}
+.sub{padding:18px 32px 26px;display:flex;flex-wrap:wrap;gap:8px;justify-content:flex-end}
+.note{background:var(--gold-tint);border:1px solid #E4CC8F;color:#7A5A0F;font-size:13px;padding:10px 13px;border-radius:7px;margin-top:12px}
+[data-theme=dark] .note{color:#f3d98a}
+/* login */
+.login{max-width:440px;margin:60px auto;padding:34px 28px;text-align:center}
+.login img{width:170px;margin:0 auto 14px}.login h2{color:var(--navy);font-size:26px}
+.err{color:var(--red);font-size:13px;margin-top:10px}
+@media print{.nav,.hero,.strip,.bar,.sub,.x{display:none!important}.ov{position:static;background:none;padding:0}.mb{box-shadow:none}}
+</style>
+</head>
+<body>
+<div class="strip"><span></span><span></span><span></span><span></span><span></span></div>
+
+<!-- LOGIN / WAITING -->
+<section id="login" hidden class="card login">
+  <img src="logo.jpg" alt="Calapan City Pickleball Club">
+  <h2>Members Database</h2>
+  <p class="muted">For club officers only. Sign in with your Gmail account.</p>
+  <button class="btn gold" id="gbtn">Sign in with Google</button>
+  <div class="or"><span>or use email and password</span></div>
+  <form id="eform" style="text-align:left">
+    <input type="email" id="em" placeholder="Email" autocomplete="email" required>
+    <input type="password" id="pw" placeholder="Password (at least 6 characters)" autocomplete="current-password" required style="margin-top:8px">
+    <div style="display:flex;gap:8px;margin-top:10px">
+      <button class="btn" type="submit" style="flex:1">Sign in</button>
+      <button class="btn line" type="button" id="signup" style="flex:1">Create account</button>
+    </div>
+    <p class="muted" style="margin:10px 0 0;text-align:center"><a href="#" id="forgot" style="color:var(--navy)">Forgot password?</a></p>
+  </form>
+  <p class="err" id="lerr"></p>
+  <p class="muted"><a href="../index.html" style="color:var(--navy)">Back to the club website</a></p>
+</section>
+<section id="wait" hidden class="card login">
+  <h2>Waiting for approval</h2>
+  <p class="muted">You're signed in, but a Super Admin still needs to give your account a role. Please try again later.</p>
+  <button class="btn line" onclick="auth.signOut()">Sign out</button>
+</section>
+
+<section id="verify" hidden class="card login">
+  <h2>Verify your email</h2>
+  <p class="muted">We sent a verification link to <b id="vmail"></b>. Open the link in that email, then press the button below.</p>
+  <div style="display:flex;flex-direction:column;gap:8px">
+    <button class="btn gold" id="vdone">I've verified my email</button>
+    <button class="btn line" id="vresend">Resend email</button>
+    <button class="btn line" onclick="auth.signOut()">Sign out</button>
+  </div>
+  <p class="err" id="vmsg"></p>
+</section>
+
+<!-- APP -->
+<div id="app" hidden>
+  <nav class="nav">
+    <a class="brand" href="../index.html"><img src="logo.jpg" alt="">CCPC Members</a>
+    <div class="tabs">
+      <button class="tab on" data-v="m">Members</button>
+      <button class="tab" data-v="a" id="ta" hidden>Applications<i id="abadge">0</i></button>
+      <button class="tab" data-v="u" id="tu" hidden>Users</button>
+    </div>
+    <span class="who" id="who"></span>
+    <button class="btn line pill" id="th">Light / Dark</button>
+    <button class="btn pill" id="lo">Sign out</button>
+  </nav>
+  <header class="hero"><div class="hero-in">
+    <div><h1>Members Database</h1><p>Calapan City Pickleball Club</p></div>
+    <div class="stats" id="stats"></div>
+  </div></header>
+
+  <div class="wrap">
+    <section id="vm">
+      <div class="bar">
+        <input id="q" type="search" placeholder="Search name, nickname, DUPR, phone, email">
+        <select id="fmo"></select><select id="fg"></select><select id="fcs"></select>
+        <select id="fbt"></select><select id="fmd"></select><select id="fst"></select>
+        <button class="btn line pill" id="clr">Clear filters</button>
+        <button class="btn gold pill" id="add" hidden>+ Add member</button>
+        <button class="btn line pill" id="csv" hidden>Export CSV</button>
+      </div>
+      <div class="card tw"><table><thead id="thead"></thead><tbody id="tb"></tbody></table></div>
+      <p class="muted" id="count"></p>
+    </section>
+    <section id="va" hidden>
+      <h2 style="color:var(--navy);margin-bottom:6px">Membership applications</h2>
+      <p class="muted">These come from the club website's application form. Move each one through the review steps, then approve it as a member, or reject it.</p>
+      <div class="card tw"><table><thead><tr><th>Name</th><th>Nickname</th><th>Phone</th><th>Submitted</th><th>Status</th></tr></thead><tbody id="atb"></tbody></table></div>
+      <h2 style="color:var(--navy);margin:30px 0 6px">Rejected applications</h2>
+      <p class="muted">A record of rejected applications: when, by whom, and why. They can be restored or permanently deleted.</p>
+      <div class="card tw"><table><thead><tr><th>Name</th><th>Nickname</th><th>Date rejected</th><th>Rejected by</th><th>Reason</th></tr></thead><tbody id="rtb"></tbody></table></div>
+    </section>
+    <section id="vu" hidden></section>
+  </div>
+</div>
+<div class="ov" id="ov" hidden><div class="mb" id="mc"></div></div>
+
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore-compat.js"></script>
+<script>
+/* ===== SETUP ===== */
+const firebaseConfig={apiKey:"AIzaSyB4IiCCQHtGeIT44n71oGlKk7PIOSWxfg8",authDomain:"ccpc-1943f.firebaseapp.com",databaseURL:"https://ccpc-1943f-default-rtdb.firebaseio.com",projectId:"ccpc-1943f",storageBucket:"ccpc-1943f.firebasestorage.app",messagingSenderId:"904942754236",appId:"1:904942754236:web:aecbec51d5cd0b745b33b9"};
+const SUPER_ADMIN="YOUR_GMAIL@gmail.com"; // <-- replace: this account becomes the Super Admin
+const APPS="membershipApplications",MEMBERS="members"; // APPS = submitted from the club website form
+const fbApp=firebase.initializeApp(firebaseConfig,"members"); // separate app name so it doesn't mix with logins on your other pages
+const auth=fbApp.auth(),db=fbApp.firestore();
+
+/* ===== FIELDS (same names as the website form) ===== */
+const GROUPS=["Personal information","Contact","Emergency contact","Health","Pickleball and club"];
+const STAT=["Under Assessment","Membership Committee Approved","President Approved","Club Fee Paid"];
+const SKILL=["Beginner","Novice","Low Intermediate","High Intermediate","Advanced","Advanced+"];
+const SUBROLES=["Membership Committee","President","Finance"];
+const stIdx=a=>Math.max(0,STAT.indexOf(a.applicationStatus));
+const stTag=a=>`<span class="tag t-s${stIdx(a)}">${STAT[stIdx(a)]}</span>`;
+const F=[
+{k:"fullName",l:"Full name",g:0,req:1},{k:"nickname",l:"Nickname",g:0},
+{k:"birthdate",l:"Birthdate",t:"date",g:0,req:1},
+{k:"gender",l:"Gender",t:"pill",o:["Male","Female","Other"],g:0},
+{k:"civilStatus",l:"Civil status",t:"pill",o:["Single","Married","Widowed","Separated"],g:0},
+{k:"phone",l:"Phone number",t:"tel",g:1,req:1},{k:"email",l:"Email address",t:"email",g:1},
+{k:"address",l:"Home address",g:1,s:1,w:1},
+{k:"emergencyName",l:"Emergency contact name",g:2,s:1,req:1},
+{k:"emergencyRelationship",l:"Relationship",g:2,s:1,req:1},
+{k:"emergencyNumber",l:"Contact number",t:"tel",g:2,s:1,req:1},
+{k:"height",l:"Height (cm)",t:"number",g:3,s:1},{k:"weight",l:"Weight (kg)",t:"number",g:3,s:1},
+{k:"bloodType",l:"Blood type",t:"sel",o:["A+","A-","B+","B-","AB+","AB-","O+","O-","Unknown"],g:3,s:1},
+{k:"medicalCondition",l:"Pre-existing medical condition?",t:"pill",o:["Yes","No"],g:3,s:1},
+{k:"condition",l:"If yes, what condition?",g:3,s:1,w:1},
+{k:"medication",l:"Medication, if any",g:3,s:1,w:1},
+{k:"skillLevel",l:"Skill level",t:"sel",o:SKILL,g:4},
+{k:"dupr",l:"DUPR ID",g:4},
+{k:"duprCareerHigh",l:"Career high DUPR rating",t:"number",step:"0.001",g:4},
+{k:"applicationStatus",l:"Application status",t:"sel",o:STAT,g:4},
+{k:"dateJoined",l:"Date joined",t:"date",g:4},
+{k:"status",l:"Member status",t:"sel",o:["Active","Inactive"],g:4},
+{k:"facebookName",l:"Facebook name",g:4}
+];
+const FO=k=>F.find(f=>f.k==k).o;
+const DEC=[["fit","I confirm that I am physically fit to participate in the club's activities.",1],
+["followRules","I agree to follow the club rules and regulations.",1],
+["notLiable","I release the club from liability for any injury or loss.",1],
+["joinFacebookGroup","Add me to the club's Facebook group.",0]];
+const MO=["January","February","March","April","May","June","July","August","September","October","November","December"];
+const COLS=[["nickname","Nickname"],["fullName","Full name"],["birthdate","Age"],["gender","Gender"],["dupr","DUPR ID"],["phone","Phone"],["status","Status"]];
+
+/* ===== HELPERS ===== */
+const $=s=>document.querySelector(s);
+const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const today=()=>new Date().toISOString().slice(0,10);
+function age(b){if(!b)return"";const d=new Date(b),n=new Date();let m=(n.getFullYear()-d.getFullYear())*12+n.getMonth()-d.getMonth();if(n.getDate()<d.getDate())m--;return m<0?"":Math.floor(m/12)+" yrs, "+m%12+" mos"}
+const norm=m=>{if(!m.emergencyName&&m.emergencyContact){const p=m.emergencyContact.split(/\s*[–—-]\s*/);m.emergencyName=p[0];m.emergencyRelationship=p.slice(1).join(' - ')}return m};
+const tsDate=t=>t&&t.toDate?t.toDate().toISOString().slice(0,10):"";
+let me=null,role="",subRole="",mem=[],apps=[],unsubs=[],sort={k:"nickname",d:1};
+const flt={q:"",mo:"",g:"",cs:"",bt:"",md:"",st:""};
+const isAdm=()=>role=="superadmin"||role=="admin";
+const show=id=>["login","wait","verify","app"].forEach(x=>$("#"+x).hidden=x!=id);
+const closeModal=()=>$("#ov").hidden=true;
+const openModal=h=>{$("#mc").innerHTML='<button class="x" onclick="closeModal()" aria-label="Close">&times;</button>'+h;$("#ov").hidden=false};
+$("#ov").hidden=true;
+$("#ov").onclick=e=>{if(e.target.id=="ov")closeModal()};
+addEventListener("keydown",e=>{if(e.key=="Escape")closeModal()});
+const setTheme=t=>{document.documentElement.dataset.theme=t;localStorage.theme=t};
+setTheme(localStorage.theme||"light");
+$("#th").onclick=()=>setTheme(document.documentElement.dataset.theme=="dark"?"light":"dark");
+
+/* ===== AUTH ===== */
+$("#gbtn").onclick=()=>auth.signInWithPopup(new firebase.auth.GoogleAuthProvider()).catch(e=>$("#lerr").textContent=e.message);
+$("#lo").onclick=()=>auth.signOut();
+const say=(t,ok)=>{const e=$("#lerr");e.textContent=t;e.style.color=ok?"var(--navy)":""};
+const niceErr=e=>({"auth/invalid-credential":"Wrong email or password.","auth/wrong-password":"Wrong email or password.","auth/user-not-found":"Wrong email or password.","auth/email-already-in-use":"That email already has an account. Try signing in instead.","auth/weak-password":"Password must be at least 6 characters.","auth/invalid-email":"That email address doesn't look right.","auth/operation-not-allowed":"Email/password sign-in is not enabled in Firebase yet.","auth/too-many-requests":"Too many attempts. Please wait a moment and try again."}[e.code]||e.message);
+$("#eform").onsubmit=e=>{e.preventDefault();say("");auth.signInWithEmailAndPassword($("#em").value.trim(),$("#pw").value).catch(err=>say(niceErr(err)))};
+$("#signup").onclick=async()=>{
+  const em=$("#em").value.trim(),pw=$("#pw").value;say("");
+  if(!em||pw.length<6)return say("Enter your email and a password of at least 6 characters.");
+  try{const c=await auth.createUserWithEmailAndPassword(em,pw);await c.user.sendEmailVerification()}catch(err){say(niceErr(err))}
+};
+$("#forgot").onclick=async e=>{
+  e.preventDefault();const em=$("#em").value.trim();
+  if(!em)return say("Type your email above first, then click Forgot password.");
+  try{await auth.sendPasswordResetEmail(em);say("Password reset email sent. Check your inbox (and spam folder).",1)}catch(err){say(niceErr(err))}
+};
+$("#vresend").onclick=async()=>{try{await auth.currentUser.sendEmailVerification();$("#vmsg").style.color="var(--navy)";$("#vmsg").textContent="Verification email sent again."}catch(err){$("#vmsg").style.color="";$("#vmsg").textContent=niceErr(err)}};
+$("#vdone").onclick=async()=>{
+  await auth.currentUser.reload();
+  if(auth.currentUser.emailVerified){await auth.currentUser.getIdToken(true);location.reload()}
+  else{$("#vmsg").style.color="";$("#vmsg").textContent="Not verified yet. Open the link in your email first."}
+};
+auth.onAuthStateChanged(async u=>{
+  unsubs.forEach(f=>f());unsubs=[];me=u;
+  if(!u||!u.email){show("login");return}
+  if(u.providerData.some(p=>p.providerId=="password")&&!u.emailVerified){$("#vmail").textContent=u.email;show("verify");return}
+  try{
+    const ref=db.collection("users").doc(u.uid);let s=await ref.get();
+    const isSA=u.email.toLowerCase()==SUPER_ADMIN.toLowerCase();
+    if(!s.exists){await ref.set({email:u.email,name:u.displayName||"",role:isSA?"superadmin":"pending",created:Date.now()});s=await ref.get()}
+    role=s.data().role;subRole=s.data().subRole||"";
+    if(isSA&&role!="superadmin"){await ref.update({role:"superadmin"});role="superadmin"}
+  }catch(e){$("#lerr").textContent="Error: "+e.message;show("login");return}
+  role=="pending"?show("wait"):start();
+});
+
+/* ===== FORM ===== */
+function formHTML(m){
+  let h="";
+  GROUPS.forEach((gn,gi)=>{
+    h+=`<div class="sec"><h3>${gn}</h3><div class="grid">`+F.filter(f=>f.g==gi).map(f=>{
+      const v=m[f.k]??"";let inp;
+      if(f.t=="sel")inp=`<select name="${f.k}"><option value="">Select</option>${f.o.map(o=>`<option ${o==v?"selected":""}>${o}</option>`).join("")}</select>`;
+      else if(f.t=="pill")inp=`<div class="pills">${f.o.map(o=>`<input type="radio" name="${f.k}" id="${f.k}_${o}" value="${o}" ${o==v?"checked":""}><label for="${f.k}_${o}">${o}</label>`).join("")}</div>`;
+      else inp=`<input name="${f.k}" type="${f.t||"text"}" ${f.t=="number"?`step="${f.step||"0.1"}" min="0"`:""} value="${esc(v)}" ${f.req?"required":""}>`;
+      return `<div class="fld ${f.w?"w":""}"><label>${f.l}${f.req?' <span class="req">*</span>':""}</label>${inp}${f.k=="birthdate"?'<div class="muted" id="ageOut">'+age(v)+"</div>":""}</div>`;
+    }).join("")+"</div></div>";
+  });
+  const d=m.declarations||{};
+  return h+'<div class="sec"><h3>Declarations</h3>'+DEC.map(([k,t,r])=>`<label class="dec"><input type="checkbox" name="d_${k}" ${d[k]?"checked":""}>${t}${r?' <span class="req">*</span>':""}</label>`).join("")+"</div>";
+}
+function readForm(f){
+  const d={};
+  F.forEach(x=>{const v=f.elements[x.k].value.trim();d[x.k]=x.t=="number"&&v!==""?Number(v):v});
+  d.declarations={};DEC.forEach(([k])=>d.declarations[k]=f.elements["d_"+k].checked);
+  return d;
+}
+
+/* ===== START ===== */
+function start(){
+  show("app");
+  $("#who").innerHTML=esc(me.email)+'<span class="role">'+role+"</span>"+(subRole?'<span class="role">'+esc(subRole)+"</span>":"");
+  $("#add").hidden=$("#csv").hidden=$("#ta").hidden=!isAdm();
+  $("#tu").hidden=role!="superadmin";
+  const sel=(id,label,opts)=>$(id).innerHTML=`<option value="">${label}</option>`+opts.map(o=>`<option value="${o[0]}">${o[1]}</option>`).join("");
+  const pair=a=>a.map(x=>[x,x]);
+  sel("#fmo","Birth month",MO.map((m,i)=>[i+1,m]));
+  sel("#fg","Gender",pair(["Male","Female","Other"]));sel("#fcs","Civil status",pair(FO("civilStatus")));
+  sel("#fbt","Blood type",pair(FO("bloodType")));sel("#fmd","Medical condition",pair(["Yes","No"]));
+  sel("#fst","Status",pair(["Active","Inactive"]));
+  $("#fbt").hidden=$("#fmd").hidden=role=="viewer";
+  $("#thead").innerHTML="<tr>"+COLS.map(([k,l])=>`<th data-k="${k}">${l}</th>`).join("")+"</tr>";
+  $("#thead").onclick=e=>{const k=e.target.dataset.k;if(k){sort={k,d:sort.k==k?-sort.d:1};draw()}};
+  unsubs.push(db.collection(MEMBERS).onSnapshot(s=>{mem=s.docs.map(d=>norm({id:d.id,...d.data()}));draw()},e=>alert("Could not load members: "+e.message)));
+  if(isAdm())unsubs.push(db.collection(APPS).onSnapshot(s=>{apps=s.docs.map(d=>norm({id:d.id,...d.data()})).sort((a,b)=>(b.submittedAt?.seconds||0)-(a.submittedAt?.seconds||0));drawApps();draw()},e=>alert("Could not load applications: "+e.message)));
+}
+const map={q:"#q",mo:"#fmo",g:"#fg",cs:"#fcs",bt:"#fbt",md:"#fmd",st:"#fst"};
+Object.entries(map).forEach(([k,id])=>$(id).oninput=e=>{flt[k]=e.target.value;draw()});
+$("#clr").onclick=()=>{Object.keys(flt).forEach(k=>{flt[k]="";$(map[k]).value=""});draw()};
+function quick(k,v){Object.keys(flt).forEach(x=>{flt[x]="";$(map[x]).value=""});flt[k]=v;$(map[k]).value=v;go("m");draw()}
+
+/* ===== MEMBERS TABLE ===== */
+function rows(){
+  const q=flt.q.toLowerCase();
+  return mem.filter(m=>(!q||[m.fullName,m.nickname,m.dupr,m.phone,m.email].join(" ").toLowerCase().includes(q))&&
+    (!flt.mo||m.birthdate&&+m.birthdate.slice(5,7)==+flt.mo)&&(!flt.g||m.gender==flt.g)&&(!flt.cs||m.civilStatus==flt.cs)&&
+    (!flt.bt||m.bloodType==flt.bt)&&(!flt.st||m.status==flt.st)&&(!flt.md||m.medicalCondition==flt.md))
+  .sort((a,b)=>String(a[sort.k]||"").localeCompare(String(b[sort.k]||""),undefined,{numeric:true,sensitivity:"base"})*sort.d);
+}
+function draw(){
+  const cm=new Date().getMonth()+1;
+  $("#stats").innerHTML=
+   `<button class="stat" onclick="quick('st','')"><span class="n">${mem.length}</span><span class="l">Total members</span></button>`+
+   `<button class="stat" onclick="quick('st','Active')"><span class="n">${mem.filter(m=>m.status=="Active").length}</span><span class="l">Active</span></button>`+
+   `<button class="stat" onclick="quick('mo',${cm})"><span class="n">${mem.filter(m=>m.birthdate&&+m.birthdate.slice(5,7)==cm).length}</span><span class="l">Birthdays in ${MO[cm-1]}</span></button>`+
+   (isAdm()?`<button class="stat" onclick="go('a')"><span class="n">${pend().length}</span><span class="l">New applications</span></button>`:"");
+  $("#abadge").textContent=pend().length;$("#abadge").hidden=!pend().length;
+  const r=rows();
+  $("#tb").innerHTML=r.length?r.map(m=>`<tr onclick="view('${m.id}')"><td><b>${esc(m.nickname)}</b></td><td>${esc(m.fullName)}</td><td>${age(m.birthdate)}</td><td>${esc(m.gender)}</td><td>${esc(m.dupr)}</td><td>${esc(m.phone)}</td><td><span class="tag t-${m.status}">${esc(m.status)}</span></td></tr>`).join(""):'<tr><td colspan="7" class="empty">No members found. Try clearing the filters.</td></tr>';
+  $("#count").textContent=r.length+" of "+mem.length+" members";
+}
+
+/* ===== VIEW / EDIT MEMBER ===== */
+function histHTML(m){
+  const h=m.statusHistory||[];if(!h.length||role=="viewer")return"";
+  return '<div class="sec"><h3>Status history</h3>'+h.map(x=>`<div class="dec">${esc(x.status)} &middot; ${esc(x.by)}${x.sub?" ("+esc(x.sub)+")":""} &middot; ${new Date(x.at).toLocaleString("en-PH",{dateStyle:"medium",timeStyle:"short"})}</div>`).join("")+"</div>";
+}
+function details(m){return detailsBase(m)+histHTML(m)}
+function detailsBase(m){
+  let h="";
+  GROUPS.forEach((gn,gi)=>{
+    const fs=F.filter(f=>f.g==gi&&!(f.s&&role=="viewer"));if(!fs.length)return;
+    h+=`<div class="sec"><h3>${gn}</h3><div class="grid">`+fs.map(f=>`<div class="${f.w?"w":""}"><span class="k">${f.l}</span><div class="val">${esc(m[f.k])||"—"}${f.k=="birthdate"&&m.birthdate?" ("+age(m.birthdate)+")":""}</div></div>`).join("")+"</div></div>";
+  });
+  const d=m.declarations||{};
+  return h+`<div class="sec"><h3>Declarations</h3>${DEC.map(([k,t])=>`<div class="dec">${d[k]?"Yes":"No"} &middot; ${t}</div>`).join("")}</div>`;
+}
+function view(id){
+  const m=mem.find(x=>x.id==id);if(!m)return;
+  let h=`<div class="mh"><h2>${esc(m.fullName)}</h2><p class="muted" style="margin:4px 0 0">${m.nickname?'"'+esc(m.nickname)+'" &middot; ':""}<span class="tag t-${m.status}">${esc(m.status)}</span></p></div>`+details(m);
+  if(role=="viewer")h+='<div class="sec"><div class="note">Address, emergency contact, and health info are visible to admins only.</div></div>';
+  h+='<div class="sub">'+(isAdm()?`<button class="btn red" onclick="del('${id}')">Delete</button><button class="btn line" onclick="print()">Print</button><button class="btn gold" onclick="edit('${id}')">Edit</button>`:"")+'<button class="btn line" onclick="closeModal()">Close</button></div>';
+  openModal(h);
+}
+function edit(id,appId){
+  const a=appId?apps.find(x=>x.id==appId):null;
+  if(a&&stIdx(a)<3)return alert("The status must be Club Fee Paid before the applicant can become a member.");
+  const m=id?mem.find(x=>x.id==id):a?{...a,status:"Active",dateJoined:today()}:{status:"Active",dateJoined:today(),applicationStatus:"Club Fee Paid"};
+  openModal(`<div class="mh"><h2>${id?"Edit member":a?"Approve application":"Add member"}</h2>${a?'<p class="muted" style="margin:4px 0 0">Review the details and add a DUPR ID before saving.</p>':""}</div><form id="mf">${formHTML(m)}<div class="sub"><button type="button" class="btn line" onclick="closeModal()">Cancel</button><button class="btn gold" type="submit">${a?"Save as member":"Save changes"}</button></div></form>`);
+  const f=$("#mf"),b=f.elements.birthdate;b.oninput=()=>$("#ageOut").textContent=age(b.value);
+  f.onsubmit=async e=>{
+    e.preventDefault();const d=readForm(f);
+    if(!DEC.every(([k,,r])=>!r||d.declarations[k]))return alert("Please check the three required declarations.");
+    try{
+      if(a){
+        d.createdAt=Date.now();d.consentDate=tsDate(a.submittedAt)||today();d.fromApplication=appId;
+        d.statusHistory=[...(a.statusHistory||[]),{status:"Approved as member",by:me.email,sub:subRole||"",at:Date.now()}];
+        const bt=db.batch();bt.set(db.collection(MEMBERS).doc(),d);bt.delete(db.collection(APPS).doc(appId));await bt.commit();
+      }else if(id)await db.collection(MEMBERS).doc(id).update(d);
+      else{d.createdAt=Date.now();d.consentDate=today();await db.collection(MEMBERS).add(d)}
+      closeModal();
+    }catch(err){alert("Could not save: "+err.message)}
+  };
+}
+$("#add").onclick=()=>edit();
+async function del(id){const m=mem.find(x=>x.id==id);if(confirm("Delete "+m.fullName+"? This cannot be undone.")){await db.collection(MEMBERS).doc(id).delete();closeModal()}}
+$("#csv").onclick=()=>{
+  const q=v=>'"'+String(v??"").replace(/"/g,'""')+'"';
+  const out=[F.map(f=>q(f.l)).join(",")].concat(rows().map(m=>F.map(f=>q(m[f.k])).join(",")));
+  const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([out.join("\n")],{type:"text/csv"}));a.download="ccpc-members-"+today()+".csv";a.click();
+};
+
+/* ===== APPLICATIONS (from the website form) ===== */
+const pend=()=>apps.filter(a=>a.status!="rejected"),rej=()=>apps.filter(a=>a.status=="rejected");
+const tsFull=t=>t&&t.toDate?t.toDate().toLocaleString("en-PH",{dateStyle:"medium",timeStyle:"short"}):"—";
+function drawApps(){
+  const p=pend(),r=rej().sort((a,b)=>(b.rejectedAt?.seconds||0)-(a.rejectedAt?.seconds||0));
+  $("#atb").innerHTML=p.length?p.map(a=>`<tr onclick="viewApp('${a.id}')"><td><b>${esc(a.fullName)}</b></td><td>${esc(a.nickname)}</td><td>${esc(a.phone)}</td><td>${tsDate(a.submittedAt)||"—"}</td><td>${stTag(a)}</td></tr>`).join(""):'<tr><td colspan="5" class="empty">No new applications right now.</td></tr>';
+  $("#rtb").innerHTML=r.length?r.map(a=>`<tr onclick="viewApp('${a.id}')"><td><b>${esc(a.fullName)}</b></td><td>${esc(a.nickname)}</td><td>${tsFull(a.rejectedAt)}</td><td>${esc(a.rejectedBy)||"—"}</td><td>${esc(a.rejectReason)||"—"}</td></tr>`).join(""):'<tr><td colspan="5" class="empty">No rejected applications yet.</td></tr>';
+}
+function viewApp(id){
+  const a=apps.find(x=>x.id==id);if(!a)return;const rj=a.status=="rejected",i=stIdx(a);
+  const top=rj?'<span class="tag t-Inactive">Rejected</span> '+tsFull(a.rejectedAt)+" &middot; by "+esc(a.rejectedBy)+(a.rejectedAtStage?" &middot; at stage: "+esc(a.rejectedAtStage):"")+'<div class="note"><b>Reason:</b> '+esc(a.rejectReason||"—")+"</div>"
+    :'<span class="tag t-New">New application</span> '+tsDate(a.submittedAt)+'<div class="steps">'+STAT.map((s,k)=>`<span class="step ${k<i?"done":""} ${k==i?"cur":""}">${k+1}. ${s}</span>`).join("")+"</div>";
+  const btn=rj?`<button class="btn red" onclick="delApp('${id}')">Delete permanently</button><button class="btn line" onclick="closeModal()">Close</button><button class="btn gold" onclick="restoreApp('${id}')">Restore</button>`
+    :`<button class="btn red" onclick="rejectApp('${id}')">Reject</button><button class="btn line" onclick="closeModal()">Close</button>`+
+     (i>0?`<button class="btn line" onclick="setStatus('${id}',-1)">Back to ${STAT[i-1]}</button>`:"")+
+     (i<3?`<button class="btn gold" onclick="setStatus('${id}',1)">Mark as ${STAT[i+1]}</button>`:`<button class="btn gold" onclick="edit(null,'${id}')">Approve as member</button>`);
+  openModal(`<div class="mh"><h2>${esc(a.fullName)}</h2><div class="muted" style="margin-top:4px">${top}</div></div>${details(a)}<div class="sub">${btn}</div>`);
+}
+const AU=firebase.firestore.FieldValue;
+const hist=(status)=>AU.arrayUnion({status,by:me.email,sub:subRole||"",at:Date.now()});
+async function setStatus(id,dir){
+  const a=apps.find(x=>x.id==id),n=stIdx(a)+dir;if(n<0||n>3)return;
+  await db.collection(APPS).doc(id).update({applicationStatus:STAT[n],statusHistory:hist(STAT[n])});
+  viewApp(id);
+}
+async function rejectApp(id){
+  const a=apps.find(x=>x.id==id);
+  const r=(prompt("Reason for rejecting this application (required):")||"").trim();
+  if(!r)return alert("A reason is required to reject an application.");
+  await db.collection(APPS).doc(id).update({status:"rejected",rejectedAt:AU.serverTimestamp(),rejectedBy:me.email,rejectReason:r,rejectedAtStage:STAT[stIdx(a)],statusHistory:hist("Rejected: "+r)});closeModal();
+}
+async function restoreApp(id){
+  const D=AU.delete();
+  await db.collection(APPS).doc(id).update({status:D,rejectedAt:D,rejectedBy:D,rejectReason:D,rejectedAtStage:D,statusHistory:hist("Restored")});closeModal();
+}
+async function delApp(id){if(confirm("Permanently delete this application? This cannot be undone.")){await db.collection(APPS).doc(id).delete();closeModal()}}
+
+/* ===== TABS + USERS ===== */
+function go(v){
+  document.querySelectorAll(".tab").forEach(b=>b.classList.toggle("on",b.dataset.v==v));
+  $("#vm").hidden=v!="m";$("#va").hidden=v!="a";$("#vu").hidden=v!="u";
+  if(v=="u")loadUsers();
+}
+document.querySelectorAll(".tab").forEach(b=>b.onclick=()=>go(b.dataset.v));
+async function loadUsers(){
+  let s;
+  try{s=await db.collection("users").get()}
+  catch(e){$("#vu").innerHTML='<div class="note">Could not load users: '+esc(e.message)+'. Make sure the latest firestore.rules is published.</div>';return}
+  $("#vu").innerHTML='<h2 style="color:var(--navy);margin-bottom:6px">Users</h2><p class="muted">New Gmail logins stay "pending" until you give them a role.</p><div class="card tw"><table><thead><tr><th>Email</th><th>Name</th><th>Role</th><th>Admin sub-role</th><th></th></tr></thead><tbody>'+
+  s.docs.map(d=>{const u=d.data();return `<tr style="cursor:default"><td>${esc(u.email)}</td><td>${esc(u.name)}</td><td><select onchange="setRole('${d.id}',this.value)">${["pending","viewer","admin","superadmin"].map(r=>`<option ${r==u.role?"selected":""}>${r}</option>`).join("")}</select></td><td><select ${u.role!="admin"?"disabled":""} onchange="setSub('${d.id}',this.value)"><option value="">None</option>${SUBROLES.map(r=>`<option ${r==u.subRole?"selected":""}>${r}</option>`).join("")}</select></td><td><button class="btn red pill" onclick="rmUser('${d.id}')">Remove</button></td></tr>`}).join("")+"</tbody></table></div>";
+}
+async function setRole(id,r){await db.collection("users").doc(id).update(r=="admin"?{role:r}:{role:r,subRole:firebase.firestore.FieldValue.delete()});loadUsers()}
+async function setSub(id,v){await db.collection("users").doc(id).update({subRole:v})}
+async function rmUser(id){if(confirm("Remove this user?")){await db.collection("users").doc(id).delete();loadUsers()}}
+</script>
+</body>
+</html>

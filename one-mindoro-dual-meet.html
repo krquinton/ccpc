@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CCPC x Stackers Dual Meet</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+<style>
+:root{
+  --yellow:#fab813;
+  --orange:#ff6600;
+  --navy:#083d5f;
+  --teal:#3992b9;
+  --red:#bb1421;
+  --cream:#fffdf8;
+  --ink:#083d5f;
+  --muted:#5b7385;
+}
+
+*{box-sizing:border-box; -webkit-tap-highlight-color:transparent}
+
+html{
+  scroll-behavior:smooth;
+  -webkit-text-size-adjust:100%;
+  text-size-adjust:100%;
+}
+
+body{
+  margin:0;
+  font-family:'Poppins',sans-serif;
+  background:var(--cream);
+  color:var(--navy);
+  overflow-x:hidden;
+}
+
+img{max-width:100%}
+button,input{font-family:'Poppins',sans-serif}
+
+.display{
+  font-family:'Baloo 2',sans-serif;
+  font-weight:700;
+}
+
+.wrap{
+  width:100%;
+  max-width:900px;
+  margin:auto;
+  padding:0 18px;
+}
+
+/* ---------- HERO ---------- */
+.hero{
+  position:relative;
+  overflow:hidden;
+  padding:44px 18px 100px;
+  text-align:center;
+  background:var(--cream);
+}
+.block{
+  position:absolute;
+  border-radius:22px;
+}
+.block.b1{width:180px;height:180px;background:var(--yellow);top:-50px;left:-50px;transform:rotate(-8deg)}
+.block.b2{width:120px;height:120px;background:var(--orange);top:20px;left:110px;transform:rotate(10deg)}
+.block.b3{width:160px;height:160px;background:var(--teal);bottom:-60px;right:-40px;transform:rotate(12deg)}
+.block.b4{width:100px;height:100px;background:var(--red);bottom:30px;right:130px;transform:rotate(-14deg)}
+.club-line{
+  position:relative;z-index:2;
+  display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:9px;
+  font-weight:700;font-size:12.5px;letter-spacing:1.5px;
+  color:var(--red);
+  margin-bottom:10px;
+}
+.club-line .dot{width:5px;height:5px;background:var(--red);border-radius:50%}
+.hero h1{
+  position:relative;z-index:2;
+  font-size:clamp(38px,9vw,72px);
+  line-height:1.02;
+  margin:8px auto 10px;
+  max-width:760px;
+  color:var(--navy);
+}
+.hero h1 .accent{color:var(--orange)}
+.hero .sub{
+  position:relative;z-index:2;
+  font-weight:600;font-size:16px;
+  color:var(--muted);
+  max-width:480px;margin:12px auto 0;
+}
+.chips{
+  position:relative;z-index:2;
+  display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin-top:24px;
+}
+.chip{
+  background:#fff;
+  border:2px solid var(--navy);
+  color:var(--navy);
+  font-weight:700;font-size:13.5px;
+  padding:9px 16px;border-radius:30px;
+}
+
+/* ---------- SECTION SHELL ---------- */
+section{padding:38px 0}
+.kicker{
+  display:inline-block;
+  font-weight:700;font-size:12.5px;letter-spacing:.5px;
+  color:#fff;
+  background:var(--navy);
+  padding:5px 13px;border-radius:20px;
+  margin-bottom:10px;
+}
+.kicker.orange{background:var(--orange)}
+.kicker.teal{background:var(--teal)}
+.kicker.red{background:var(--red)}
+h2.title{font-family:'Baloo 2',sans-serif;font-weight:700;font-size:clamp(25px,5vw,34px);margin:0 0 8px;line-height:1.1;color:var(--navy)}
+.lede{font-size:15.5px;line-height:1.65;max-width:640px;color:#3a4f5c}
+
+/* ---------- PANEL ---------- */
+.panel{
+  background:#fff;
+  border:2px solid rgba(8,61,95,.1);
+  border-radius:22px;
+  padding:24px;
+  margin-top:20px;
+}
+.panel.accent-yellow{border-left:6px solid var(--yellow)}
+.panel.accent-teal{border-left:6px solid var(--teal)}
+.panel.soon{
+  background:var(--navy);
+  color:#fff;
+  border:none;
+}
+.panel.soon .lede{color:#cfe3ee}
+
+/* ---------- FORM ---------- */
+.form-panel{
+  background:#fff;
+  border-radius:24px;
+  padding:26px 24px;
+  margin-top:20px;
+  border:2px solid rgba(8,61,95,.1);
+}
+.field{margin-top:16px}
+.field label{
+  display:block;font-weight:700;font-size:14px;margin-bottom:7px;color:var(--navy);
+}
+.field input[type=text]{
+  width:100%;
+  min-height:50px;
+  padding:13px 15px;
+  border-radius:11px;
+  border:2px solid rgba(8,61,95,.15);
+  background:var(--cream);
+  color:var(--navy);
+  font-size:16px;
+  outline:none;
+}
+.field input:focus{border-color:var(--teal)}
+.submit-btn{
+  margin-top:22px;
+  width:100%;
+  background:var(--orange);
+  color:#fff;
+  border:none;
+  padding:15px;
+  border-radius:12px;
+  font-family:'Baloo 2',sans-serif;
+  font-weight:700;
+  font-size:18px;letter-spacing:.5px;
+  cursor:pointer;
+}
+.submit-btn:hover{background:#e65c00}
+.status-msg{margin-top:10px;font-size:13.5px;font-weight:600;min-height:1.2em}
+.status-msg.ok{color:var(--teal)}
+.status-msg.err{color:var(--red)}
+.note-line{text-align:center;font-size:13px;margin-top:14px;color:var(--muted)}
+
+/* ---------- REGISTERED LIST ---------- */
+.registered-list{margin-top:16px;display:flex;flex-direction:column;gap:8px}
+.registrant{
+  display:flex;justify-content:space-between;align-items:center;gap:10px;
+  background:var(--cream);
+  border:2px solid rgba(8,61,95,.08);
+  border-radius:12px;
+  padding:12px 14px;
+  flex-wrap:wrap;
+}
+.registrant .name{font-weight:700;font-size:14.5px;color:var(--navy)}
+.mini-btn{
+  background:transparent;
+  border:2px solid rgba(8,61,95,.2);
+  color:var(--navy);
+  font-size:12.5px;font-weight:700;
+  padding:7px 12px;border-radius:8px;cursor:pointer;
+}
+.mini-btn:hover{border-color:var(--red);color:var(--red)}
+.empty-note{font-size:14px;color:var(--muted)}
+
+/* ---------- FOOTER ---------- */
+footer{
+  background:var(--navy);
+  color:#fff;
+  text-align:center;
+  padding:30px 18px 36px;
+}
+footer .brand{font-family:'Baloo 2',sans-serif;font-weight:700;font-size:20px;letter-spacing:.5px;color:var(--yellow)}
+footer .tags{margin-top:9px;font-size:12px;letter-spacing:2px;color:#a9c2d1;font-weight:700}
+
+/* ---------- RESPONSIVE ---------- */
+@media(max-width:768px){
+  .wrap{padding-left:18px;padding-right:18px}
+  section{padding:32px 0}
+  .panel,.form-panel{padding:22px 20px}
+}
+@media(max-width:600px){
+  body{font-size:15px}
+  .wrap{padding-left:14px;padding-right:14px}
+  .hero{padding:36px 14px 80px}
+  .hero .sub{font-size:15px}
+  h2.title{font-size:26px}
+  .lede{font-size:14.5px}
+  .block{opacity:.85}
+  .block.b1{width:120px;height:120px}
+  .block.b2{width:80px;height:80px;left:70px}
+  .block.b3{width:110px;height:110px}
+  .block.b4{width:70px;height:70px;right:80px}
+}
+@media(prefers-reduced-motion:reduce){
+  *{animation:none!important;transition:none!important}
+}
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="block b1"></div>
+  <div class="block b2"></div>
+  <div class="block b3"></div>
+  <div class="block b4"></div>
+
+  <div class="club-line">CALAPAN CITY PICKLEBALL CLUB <span class="dot"></span> PRESENTS</div>
+  <h1 class="display">CCPC x STACKERS<br><span class="accent">DUAL MEET</span></h1>
+  <p class="sub">Calapan City Pickleball Club meets San Jose Stackers. Good games, good people, the usual camaraderie.</p>
+  <div class="chips">
+    <div class="chip">📅 November 14, 2026</div>
+    <div class="chip">📍 PKL Box, Calapan</div>
+  </div>
+</div>
+
+<div class="wrap">
+
+  <!-- PROGRAM -->
+  <section>
+    <span class="kicker">The Program</span>
+    <h2 class="title">CCPC versus Stackers </h2>
+    <p class="lede">Pickleball players from Calapan take on players from San Jose in a friendly dual meet. One day of games built around camaraderie, sportsmanship, and all the usual reasons this sport keeps pulling people back to the court.</p>
+  </section>
+
+  <!-- MORE DETAILS SOON -->
+  <section>
+    <div class="panel soon">
+      <span class="kicker orange" style="margin-bottom:12px">Stay Tuned</span>
+      <h2 class="title" style="color:#fff">More Details Soon</h2>
+      <p class="lede" style="margin:0">Match format, schedule, and the rest of the details will be announced soon. For now, let us know if you want in.</p>
+    </div>
+  </section>
+
+  <!-- INTEREST FORM -->
+  <section id="register">
+    <span class="kicker teal">Interest Check</span>
+    <h2 class="title">Let Us Know You're In</h2>
+    <p class="lede">Just your name for now. No commitment yet, this is only to see how many are interested.</p>
+
+    <form class="form-panel" id="regForm">
+      <div class="field">
+        <label for="fullname">Full Name</label>
+        <input type="text" id="fullname" name="fullname" placeholder="Juan Dela Cruz" required>
+      </div>
+
+      <button type="submit" class="submit-btn">Count Me In</button>
+      <div id="regStatus" class="status-msg"></div>
+      <div class="note-line">Questions? Reach out to any CCPC officer.</div>
+    </form>
+
+    <div class="panel accent-yellow">
+      <h3 style="margin-top:0;font-size:18px;color:var(--navy)">Who's Interested So Far</h3>
+      <div id="registeredList" class="registered-list">
+        <p class="empty-note">Loading…</p>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<footer>
+  <div class="brand">CCPC · CALAPAN CITY PICKLEBALL CLUB</div>
+  <div class="tags">SPORT &nbsp;|&nbsp; FRIENDSHIP &nbsp;|&nbsp; WELLNESS &nbsp;|&nbsp; COMMUNITY</div>
+</footer>
+
+<!-- FIREBASE -->
+<script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-database-compat.js"></script>
+<script>
+
+var firebaseConfig = {
+  apiKey: "AIzaSyB4IiCCQHtGeIT44n71oGlKk7PIOSWxfg8",
+  authDomain: "ccpc-1943f.firebaseapp.com",
+  databaseURL: "https://ccpc-1943f-default-rtdb.firebaseio.com",
+  projectId: "ccpc-1943f",
+  storageBucket: "ccpc-1943f.firebasestorage.app",
+  messagingSenderId: "904942754236",
+  appId: "1:904942754236:web:aecbec51d5cd0b745b33b9"
+};
+
+var OM_PATH = 'oneMindoroDualMeetInterest';
+var firebaseReady = false;
+var db = null;
+
+function escapeHtml(str){
+  var d = document.createElement('div');
+  d.textContent = str == null ? '' : String(str);
+  return d.innerHTML;
+}
+
+function setStatus(id, msg, cls){
+  var e = document.getElementById(id);
+  if(e){
+    e.textContent = msg;
+    e.className = 'status-msg ' + (cls || '');
+  }
+}
+
+function initFirebase(){
+  try{
+    if(!firebase.apps.length){
+      firebase.initializeApp(firebaseConfig);
+    }
+    db = firebase.database();
+    firebaseReady = true;
+    return true;
+  }catch(e){
+    console.error(e);
+    setStatus('regStatus', 'Could not connect to the database. Please try again later.', 'err');
+    return false;
+  }
+}
+
+function renderList(list){
+  var c = document.getElementById('registeredList');
+
+  if(!list.length){
+    c.innerHTML = '<p class="empty-note">No one has signed up yet. Be the first.</p>';
+    return;
+  }
+
+  c.innerHTML = list.map(function(r){
+    return (
+      '<div class="registrant" id="row-' + r.id + '">' +
+        '<span class="name">' + escapeHtml(r.name) + '</span>' +
+        '<button type="button" class="mini-btn" onclick="deleteEntry(\'' + r.id + '\')">Delete</button>' +
+      '</div>'
+    );
+  }).join('');
+}
+
+function deleteEntry(id){
+  if(!window.confirm('Remove this entry from the list?')) return;
+
+  db.ref(OM_PATH + '/' + id).remove()
+    .catch(function(err){
+      console.error(err);
+      alert('Could not delete. Please try again.');
+    });
+}
+
+function startLiveList(){
+  if(!firebaseReady) return;
+
+  db.ref(OM_PATH).on('value', function(snap){
+    var d = snap.val() || {};
+    var arr = Object.keys(d).map(function(k){
+      return Object.assign({ id: k }, d[k]);
+    });
+    arr.sort(function(a, b){ return (a.createdAt || 0) - (b.createdAt || 0); });
+    renderList(arr);
+  }, function(err){
+    console.error(err);
+    document.getElementById('registeredList').innerHTML =
+      '<p class="empty-note">Could not load the list. Check back later.</p>';
+  });
+}
+
+document.getElementById('regForm').addEventListener('submit', async function(e){
+  e.preventDefault();
+
+  var name = document.getElementById('fullname').value.trim();
+
+  if(!name){
+    setStatus('regStatus', 'Please enter your name.', 'err');
+    return;
+  }
+
+  if(!firebaseReady){
+    setStatus('regStatus', 'Database is not connected yet. Please try again.', 'err');
+    return;
+  }
+
+  setStatus('regStatus', 'Saving…', '');
+
+  try{
+    var newRef = db.ref(OM_PATH).push();
+    await newRef.set({
+      name: name,
+      createdAt: firebase.database.ServerValue.TIMESTAMP
+    });
+    setStatus('regStatus', 'You are on the list, ' + name + '. See you on court.', 'ok');
+    this.reset();
+  }catch(err){
+    console.error(err);
+    setStatus('regStatus', 'Could not save. Please check your connection and try again.', 'err');
+  }
+});
+
+initFirebase();
+startLiveList();
+
+</script>
+</body>
+</html>

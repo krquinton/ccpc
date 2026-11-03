@@ -1,0 +1,649 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>CCPC Ideas Board</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --navy:#083D5F;
+    --navy-deep:#062C40;
+    --gold:#FAB813;
+    --gold-dark:#E5A700;
+    --orange:#FF6600;
+    --blue:#3992B9;
+    --red:#BB1421;
+
+    --paper:#FFFFFF;
+    --bg:#FAF8F2;
+    --ink:#0F2B3D;
+    --ink-soft:#5C7480;
+    --line:#E4E1D6;
+    --line-strong:#D2CDBB;
+
+    --navy-tint:#E7F0F4;
+    --gold-tint:#FEF3D9;
+    --orange-tint:#FFE7D6;
+    --blue-tint:#E9F3F7;
+    --red-tint:#FBEAEA;
+
+    --shadow:0 1px 2px rgba(8,61,95,0.05), 0 10px 28px rgba(8,61,95,0.07);
+    --display:'Fredoka', -apple-system, BlinkMacSystemFont, sans-serif;
+    --sans:'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--bg);
+    color:var(--ink);
+    font-family:var(--sans);
+    line-height:1.55;
+    -webkit-font-smoothing:antialiased;
+  }
+  a{color:inherit;}
+
+  /* Nav */
+  .nav{
+    position:sticky; top:0; z-index:50;
+    background:rgba(250,248,242,0.94);
+    backdrop-filter:blur(6px);
+    border-bottom:1px solid var(--line);
+    padding:14px 32px;
+    display:flex; align-items:center; justify-content:space-between;
+  }
+  .nav .brand{
+    display:flex; align-items:center; gap:10px;
+    font-family:var(--display); font-weight:600; font-size:16.5px;
+    color:var(--navy); text-decoration:none;
+  }
+  .nav .brand .mark{
+    width:30px; height:30px; border-radius:8px;
+    background:var(--navy);
+    display:flex; align-items:center; justify-content:center;
+    color:#fff; font-family:var(--display); font-weight:700; font-size:13px;
+  }
+  .nav-links{display:flex; align-items:center; gap:22px; font-size:13.5px; font-weight:500; color:var(--ink-soft);}
+  .nav-links a{text-decoration:none;}
+  .nav-links a:hover{color:var(--navy);}
+
+  .brand-strip{display:flex; height:5px;}
+  .brand-strip span{flex:1;}
+  .brand-strip .c1{background:var(--gold);}
+  .brand-strip .c2{background:var(--orange);}
+  .brand-strip .c3{background:var(--navy);}
+  .brand-strip .c4{background:var(--blue);}
+  .brand-strip .c5{background:var(--red);}
+
+  /* Hero / intro */
+  .hero{
+    background:var(--navy);
+    background-image:radial-gradient(circle at 85% 15%, rgba(250,184,19,0.14), transparent 55%);
+    color:#fff;
+    padding:52px 32px;
+  }
+  .hero-inner{max-width:820px; margin:0 auto; text-align:center;}
+  .hero .eyebrow{
+    display:inline-flex; align-items:center; gap:8px;
+    font-size:12.5px; font-weight:700; color:var(--gold);
+    background:rgba(250,184,19,0.14); border:1px solid rgba(250,184,19,0.4);
+    padding:6px 14px; border-radius:999px; margin-bottom:18px;
+  }
+  .hero h1{
+    font-family:var(--display); font-weight:700;
+    font-size:clamp(26px, 4vw, 36px); margin:0 0 14px; line-height:1.2;
+  }
+  .hero p{
+    font-size:14.5px; color:rgba(255,255,255,0.82); margin:0 0 10px;
+    white-space:pre-line;
+  }
+  .hero .topics{
+    display:flex; flex-wrap:wrap; gap:8px; justify-content:center; margin-top:20px;
+  }
+  .hero .topic-chip{
+    font-size:12px; font-weight:600; padding:6px 13px; border-radius:999px;
+    background:rgba(255,255,255,0.1); border:1px solid rgba(255,255,255,0.25);
+  }
+
+  .wrap{max-width:820px; margin:0 auto; padding:40px 20px 90px;}
+
+  /* Composer */
+  .composer{
+    background:var(--paper); border:1px solid var(--line); border-radius:14px;
+    box-shadow:var(--shadow); padding:26px 26px 22px; margin-bottom:36px;
+  }
+  .composer h2{
+    font-family:var(--display); font-size:19px; font-weight:600; margin:0 0 4px; color:var(--navy);
+  }
+  .composer .sub{font-size:13px; color:var(--ink-soft); margin:0 0 18px;}
+
+  .field-label{font-size:12.5px; font-weight:600; color:var(--ink); margin:0 0 8px; display:block;}
+
+  .cat-pills{display:flex; flex-wrap:wrap; gap:8px; margin-bottom:18px;}
+  .cat-pills input{position:absolute; opacity:0; pointer-events:none;}
+  .cat-pills label{
+    font-size:12.5px; font-weight:600; padding:8px 14px; border-radius:999px;
+    border:1px solid var(--line-strong); background:#FCFCFB; color:var(--ink-soft); cursor:pointer;
+  }
+  .cat-pills input:checked + label{color:#fff; border-color:transparent;}
+  .cat-pills input:checked + label.cat-Event-Ideas{background:var(--blue);}
+  .cat-pills input:checked + label.cat-Game-Formats{background:var(--orange);}
+  .cat-pills input:checked + label.cat-Tournament-Ideas{background:var(--red);}
+  .cat-pills input:checked + label.cat-Bonding-Activities{background:var(--gold); color:var(--navy-deep);}
+  .cat-pills input:checked + label.cat-General-Suggestions{background:var(--navy);}
+
+  textarea#ideaContent{
+    width:100%; font-family:var(--sans); font-size:14.5px; color:var(--ink);
+    border:1px solid var(--line-strong); border-radius:9px; padding:12px 14px;
+    min-height:90px; resize:vertical; background:#FCFCFB;
+  }
+  textarea#ideaContent:focus{outline:none; border-color:var(--navy); box-shadow:0 0 0 3px var(--navy-tint);}
+
+  .composer-row{
+    display:flex; align-items:center; gap:14px; flex-wrap:wrap; margin-top:14px;
+  }
+  .name-field{flex:1; min-width:180px;}
+  .name-field input{
+    width:100%; font-family:var(--sans); font-size:14px; padding:9px 12px;
+    border:1px solid var(--line-strong); border-radius:8px; background:#FCFCFB;
+  }
+  .name-field input:disabled{background:#F1F0EA; color:var(--ink-soft);}
+  .anon-toggle{display:flex; align-items:center; gap:7px; font-size:13px; color:var(--ink-soft); white-space:nowrap;}
+  .anon-toggle input{width:16px; height:16px; accent-color:var(--navy);}
+
+  .post-btn{
+    display:block; width:100%; margin-top:16px;
+    background:var(--navy); color:#fff; font-family:var(--sans); font-weight:700; font-size:14.5px;
+    border:none; border-radius:9px; padding:13px; cursor:pointer;
+  }
+  .post-btn:hover{background:var(--navy-deep);}
+  .post-btn:disabled{background:#8A9BA8; cursor:not-allowed;}
+
+  .composer-error{
+    display:none; background:var(--red-tint); border:1px solid #E3B8A9; color:var(--red);
+    font-size:12.5px; padding:9px 12px; border-radius:7px; margin-top:12px;
+  }
+  .composer-error.show{display:block;}
+
+  .config-warning{
+    display:none; background:#FEF3D9; border:1px solid #E4CC8F; color:#7A5A0F;
+    font-size:13px; padding:12px 16px; border-radius:8px; max-width:820px; margin:20px auto 0;
+  }
+  .config-warning.show{display:block;}
+
+  /* Feed filter */
+  .feed-head{
+    display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px;
+    margin-bottom:16px;
+  }
+  .feed-head h2{font-family:var(--display); font-size:18px; margin:0; color:var(--navy);}
+  select#filterCategory{
+    font-family:var(--sans); font-size:13px; padding:8px 12px; border-radius:8px;
+    border:1px solid var(--line-strong); background:#FCFCFB; color:var(--ink);
+  }
+
+  /* Thread cards */
+  .thread{
+    background:var(--paper); border:1px solid var(--line); border-radius:12px;
+    box-shadow:var(--shadow); padding:20px 22px; margin-bottom:16px;
+  }
+  .thread-head{display:flex; align-items:flex-start; justify-content:space-between; gap:12px; margin-bottom:10px;}
+  .thread-meta{display:flex; align-items:center; gap:8px; flex-wrap:wrap;}
+  .cat-tag{
+    font-size:11px; font-weight:700; color:#fff; padding:3px 10px; border-radius:999px;
+  }
+  .tag-Event-Ideas{background:var(--blue);}
+  .tag-Game-Formats{background:var(--orange);}
+  .tag-Tournament-Ideas{background:var(--red);}
+  .tag-Bonding-Activities{background:var(--gold); color:var(--navy-deep);}
+  .tag-General-Suggestions{background:var(--navy);}
+  .thread-author{font-size:12.5px; color:var(--ink-soft);}
+  .lock-badge{
+    font-size:11px; font-weight:700; color:var(--red); background:var(--red-tint);
+    border:1px solid #E3B8A9; padding:3px 9px; border-radius:999px;
+  }
+  .thread-content{font-size:14.5px; color:var(--ink); white-space:pre-wrap; margin:0 0 14px;}
+
+  .thread-actions{display:flex; align-items:center; gap:14px;}
+  .vote-btn{
+    display:inline-flex; align-items:center; gap:6px; font-size:13px; font-weight:600;
+    background:#F5F6F1; border:1px solid var(--line-strong); border-radius:999px;
+    padding:6px 13px; cursor:pointer; color:var(--ink-soft);
+  }
+  .vote-btn.up.active{background:var(--navy-tint); border-color:var(--navy); color:var(--navy);}
+  .vote-btn.down.active{background:var(--red-tint); border-color:var(--red); color:var(--red);}
+  .comment-toggle-btn{
+    font-size:13px; font-weight:600; color:var(--ink-soft); background:none; border:none; cursor:pointer;
+  }
+  .comment-toggle-btn:hover{color:var(--navy);}
+
+  .comments-section{display:none; margin-top:16px; padding-top:14px; border-top:1px solid var(--line);}
+  .comments-section.open{display:block;}
+  .comment-item{
+    font-size:13.5px; color:var(--ink); background:#F8F8F4; border-radius:8px;
+    padding:9px 12px; margin-bottom:8px;
+  }
+  .comment-item .c-meta{font-size:11px; color:var(--ink-soft); margin-bottom:3px;}
+  .comment-form{display:flex; gap:8px; margin-top:10px;}
+  .comment-form input{
+    flex:1; font-family:var(--sans); font-size:13.5px; padding:9px 12px;
+    border:1px solid var(--line-strong); border-radius:8px; background:#FCFCFB;
+  }
+  .comment-form button{
+    background:var(--navy); color:#fff; border:none; border-radius:8px; padding:0 16px;
+    font-weight:600; font-size:13px; cursor:pointer;
+  }
+  .comment-form button:hover{background:var(--navy-deep);}
+  .locked-note{
+    font-size:12.5px; color:var(--ink-soft); font-style:italic; margin-top:10px;
+  }
+
+  .empty-state{
+    text-align:center; padding:40px 20px; color:var(--ink-soft); font-size:14px;
+    background:var(--paper); border:1px dashed var(--line-strong); border-radius:12px;
+  }
+
+  footer{padding:30px 20px; text-align:center; color:var(--ink-soft); font-size:12.5px;}
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <a href="index.html" class="brand">
+    <span class="mark">C</span>
+    CCPC Ideas Board
+  </a>
+  <div class="nav-links">
+    <a href="index.html">← Back to club site</a>
+  </div>
+</nav>
+<div class="brand-strip"><span class="c1"></span><span class="c2"></span><span class="c3"></span><span class="c4"></span><span class="c5"></span></div>
+
+<header class="hero">
+  <div class="hero-inner">
+    <span class="eyebrow">CCPC FAM, YOUR TURN!</span>
+    <h1>Ikaw ang may idea, kami ang makikinig.</h1>
+    <p>Mga ka-CCPC, hindi lang tayo pang-game — pang-ideas din! Drop your ideas, suggestions, and wildest-but-possible proposals for our upcoming CCPC activities &amp; events. Walang wrong answer. Okay... maybe meron. But sabihin n'yo pa rin!</p>
+    <p>Be creative. Be honest. Be delulu — basta slightly achievable. Mag-post below, may pangalan man o anonymous, o mag-PM kay Pres Larry kung nahihiyang mag post.</p>
+    <div class="topics">
+      <span class="topic-chip">🎯 Event Ideas</span>
+      <span class="topic-chip">🕹️ Game Formats</span>
+      <span class="topic-chip">🏆 Tournament Ideas</span>
+      <span class="topic-chip">🤝 Bonding Activities</span>
+      <span class="topic-chip">💡 General Suggestions</span>
+    </div>
+  </div>
+</header>
+
+<div id="configWarning" class="config-warning">
+  Firebase isn't connected — ideas won't be saved. Fill in <code>firebaseConfig</code> near the bottom of this file.
+</div>
+
+<div class="wrap">
+
+  <div class="composer">
+    <h2>Share an idea</h2>
+    <p class="sub">Pick a topic, write your suggestion, and post it — with your name or anonymously.</p>
+
+    <span class="field-label">Topic</span>
+    <div class="cat-pills" id="catPills">
+      <input type="radio" name="cat" id="cat-event" value="Event Ideas" checked>
+      <label for="cat-event" class="cat-Event-Ideas">🎯 Event Ideas</label>
+      <input type="radio" name="cat" id="cat-format" value="Game Formats">
+      <label for="cat-format" class="cat-Game-Formats">🕹️ Game Formats</label>
+      <input type="radio" name="cat" id="cat-tourney" value="Tournament Ideas">
+      <label for="cat-tourney" class="cat-Tournament-Ideas">🏆 Tournament Ideas</label>
+      <input type="radio" name="cat" id="cat-bonding" value="Bonding Activities">
+      <label for="cat-bonding" class="cat-Bonding-Activities">🤝 Bonding Activities</label>
+      <input type="radio" name="cat" id="cat-general" value="General Suggestions">
+      <label for="cat-general" class="cat-General-Suggestions">💡 General Suggestions</label>
+    </div>
+
+    <span class="field-label">Your idea</span>
+    <textarea id="ideaContent" placeholder="Ano gusto mong mangyari sa CCPC? Share your idea, suggestion, or proposal..."></textarea>
+
+    <div class="composer-row">
+      <div class="name-field">
+        <input type="text" id="ideaName" placeholder="Your name (optional)" />
+      </div>
+      <label class="anon-toggle">
+        <input type="checkbox" id="ideaAnon" />
+        Post anonymously
+      </label>
+    </div>
+
+    <button class="post-btn" id="postBtn">Post idea</button>
+    <div class="composer-error" id="composerError"></div>
+  </div>
+
+  <div class="feed-head">
+    <h2>Community ideas</h2>
+    <select id="filterCategory">
+      <option value="all">All topics</option>
+      <option value="Event Ideas">🎯 Event Ideas</option>
+      <option value="Game Formats">🕹️ Game Formats</option>
+      <option value="Tournament Ideas">🏆 Tournament Ideas</option>
+      <option value="Bonding Activities">🤝 Bonding Activities</option>
+      <option value="General Suggestions">💡 General Suggestions</option>
+    </select>
+  </div>
+
+  <div id="threadFeed">
+    <div class="empty-state">Loading ideas…</div>
+  </div>
+
+</div>
+
+<footer>CCPC Ideas Board · Calapan City Pickleball Club</footer>
+
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore-compat.js"></script>
+<script>
+/* ============================================================
+   Firebase — same project used across the club's pages
+   ============================================================ */
+const firebaseConfig = {
+  apiKey: "AIzaSyB4IiCCQHtGeIT44n71oGlKk7PIOSWxfg8",
+  authDomain: "ccpc-1943f.firebaseapp.com",
+  databaseURL: "https://ccpc-1943f-default-rtdb.firebaseio.com",
+  projectId: "ccpc-1943f",
+  storageBucket: "ccpc-1943f.firebasestorage.app",
+  messagingSenderId: "904942754236",
+  appId: "1:904942754236:web:aecbec51d5cd0b745b33b9"
+};
+const THREADS_COLLECTION = "ideaThreads";
+
+let db = null;
+let firebaseReady = false;
+let allThreads = [];
+const openComments = new Set(); // thread ids currently expanded
+const commentUnsubs = {};       // thread id -> unsubscribe fn for its comment listener
+const commentsCache = {};       // thread id -> array of comments
+
+function initFirebase(){
+  const looksUnconfigured = !firebaseConfig.apiKey || firebaseConfig.apiKey === "YOUR_API_KEY";
+  if (looksUnconfigured) {
+    document.getElementById('configWarning').classList.add('show');
+    return;
+  }
+  try {
+    firebase.initializeApp(firebaseConfig);
+    db = firebase.firestore();
+    firebaseReady = true;
+    startListeningThreads();
+  } catch (err) {
+    console.error("Firebase init failed:", err);
+    document.getElementById('configWarning').classList.add('show');
+  }
+}
+initFirebase();
+
+function esc(str){
+  const d = document.createElement('div');
+  d.textContent = str == null ? '' : String(str);
+  return d.innerHTML;
+}
+
+function formatTimestamp(ts){
+  if (!ts) return 'just now';
+  const date = ts.toDate ? ts.toDate() : new Date(ts);
+  return date.toLocaleString(undefined, { month:'short', day:'numeric', hour:'2-digit', minute:'2-digit' });
+}
+
+function slug(s){ return s.replace(/\s+/g, '-'); }
+
+/* ============================================================
+   Local vote tracking (best-effort, per-browser)
+   ============================================================ */
+function getMyVotes(){
+  try { return JSON.parse(localStorage.getItem('ccpc_idea_votes') || '{}'); }
+  catch(e){ return {}; }
+}
+function setMyVotes(v){
+  localStorage.setItem('ccpc_idea_votes', JSON.stringify(v));
+}
+
+/* ============================================================
+   Threads
+   ============================================================ */
+function startListeningThreads(){
+  db.collection(THREADS_COLLECTION)
+    .orderBy('createdAt', 'desc')
+    .onSnapshot(snapshot => {
+      allThreads = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      renderThreads();
+    }, err => {
+      console.error(err);
+      document.getElementById('threadFeed').innerHTML =
+        `<div class="empty-state">Couldn't load ideas: ${esc(err.message)}</div>`;
+    });
+}
+
+function renderThreads(){
+  const filter = document.getElementById('filterCategory').value;
+  const feed = document.getElementById('threadFeed');
+  const filtered = filter === 'all' ? allThreads : allThreads.filter(t => t.category === filter);
+
+  if (filtered.length === 0) {
+    feed.innerHTML = '<div class="empty-state">No ideas here yet — be the first to post one!</div>';
+    return;
+  }
+
+  const myVotes = getMyVotes();
+
+  feed.innerHTML = filtered.map(t => {
+    const catClass = 'tag-' + slug(t.category || 'General Suggestions');
+    const author = t.isAnonymous ? 'Anonymous' : esc(t.authorName || 'Anonymous');
+    const myVote = myVotes[t.id];
+    const commentCount = t.commentCount || 0;
+    const isOpen = openComments.has(t.id);
+
+    return `
+      <div class="thread" data-id="${t.id}">
+        <div class="thread-head">
+          <div class="thread-meta">
+            <span class="cat-tag ${catClass}">${esc(t.category || '')}</span>
+            <span class="thread-author">${author} · ${esc(formatTimestamp(t.createdAt))}</span>
+          </div>
+          ${t.locked ? '<span class="lock-badge">🔒 Locked</span>' : ''}
+        </div>
+        <p class="thread-content">${esc(t.content || '')}</p>
+        <div class="thread-actions">
+          <button class="vote-btn up ${myVote === 'up' ? 'active' : ''}" data-id="${t.id}" data-dir="up" ${t.locked ? 'disabled' : ''}>👍 ${t.upvotes || 0}</button>
+          <button class="vote-btn down ${myVote === 'down' ? 'active' : ''}" data-id="${t.id}" data-dir="down" ${t.locked ? 'disabled' : ''}>👎 ${t.downvotes || 0}</button>
+          <button class="comment-toggle-btn" data-id="${t.id}">💬 ${commentCount} comment${commentCount === 1 ? '' : 's'}</button>
+        </div>
+        <div class="comments-section ${isOpen ? 'open' : ''}" id="comments-${t.id}">
+          <div class="comment-list" id="comment-list-${t.id}"></div>
+          ${t.locked
+            ? '<p class="locked-note">This discussion has been locked by the admins — no new comments.</p>'
+            : `<div class="comment-form">
+                 <input type="text" placeholder="Leave an anonymous comment…" id="comment-input-${t.id}" maxlength="500" />
+                 <button data-id="${t.id}" class="submit-comment-btn">Post</button>
+               </div>`
+          }
+        </div>
+      </div>
+    `;
+  }).join('');
+
+  attachThreadListeners();
+
+  // Re-render already-open comment lists from cache (listeners keep them fresh)
+  openComments.forEach(id => {
+    if (commentsCache[id]) renderCommentList(id);
+  });
+}
+
+function attachThreadListeners(){
+  document.querySelectorAll('.vote-btn').forEach(btn => {
+    btn.addEventListener('click', () => handleVote(btn.dataset.id, btn.dataset.dir));
+  });
+  document.querySelectorAll('.comment-toggle-btn').forEach(btn => {
+    btn.addEventListener('click', () => toggleComments(btn.dataset.id));
+  });
+  document.querySelectorAll('.submit-comment-btn').forEach(btn => {
+    btn.addEventListener('click', () => submitComment(btn.dataset.id));
+  });
+}
+
+async function handleVote(threadId, dir){
+  const myVotes = getMyVotes();
+  const current = myVotes[threadId];
+  const updates = {};
+
+  if (current === dir) {
+    // clicking the same vote again removes it
+    updates[dir === 'up' ? 'upvotes' : 'downvotes'] = firebase.firestore.FieldValue.increment(-1);
+    delete myVotes[threadId];
+  } else if (current) {
+    // switching vote
+    updates[current === 'up' ? 'upvotes' : 'downvotes'] = firebase.firestore.FieldValue.increment(-1);
+    updates[dir === 'up' ? 'upvotes' : 'downvotes'] = firebase.firestore.FieldValue.increment(1);
+    myVotes[threadId] = dir;
+  } else {
+    updates[dir === 'up' ? 'upvotes' : 'downvotes'] = firebase.firestore.FieldValue.increment(1);
+    myVotes[threadId] = dir;
+  }
+
+  setMyVotes(myVotes);
+  try {
+    await db.collection(THREADS_COLLECTION).doc(threadId).update(updates);
+  } catch (err) {
+    console.error(err);
+    alert("Couldn't register your vote: " + err.message);
+  }
+}
+
+function toggleComments(threadId){
+  if (openComments.has(threadId)) {
+    openComments.delete(threadId);
+    if (commentUnsubs[threadId]) { commentUnsubs[threadId](); delete commentUnsubs[threadId]; }
+  } else {
+    openComments.add(threadId);
+    listenToComments(threadId);
+  }
+  renderThreads();
+}
+
+function listenToComments(threadId){
+  if (commentUnsubs[threadId]) return;
+  commentUnsubs[threadId] = db.collection(THREADS_COLLECTION).doc(threadId).collection('comments')
+    .orderBy('createdAt', 'asc')
+    .onSnapshot(snapshot => {
+      commentsCache[threadId] = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      renderCommentList(threadId);
+    }, err => console.error(err));
+}
+
+function renderCommentList(threadId){
+  const el = document.getElementById('comment-list-' + threadId);
+  if (!el) return;
+  const comments = commentsCache[threadId] || [];
+  el.innerHTML = comments.length
+    ? comments.map(c => `
+        <div class="comment-item">
+          <div class="c-meta">Anonymous · ${esc(formatTimestamp(c.createdAt))}</div>
+          ${esc(c.content)}
+        </div>
+      `).join('')
+    : '<p class="locked-note" style="margin:0 0 8px;">No comments yet.</p>';
+}
+
+async function submitComment(threadId){
+  const input = document.getElementById('comment-input-' + threadId);
+  const text = input.value.trim();
+  if (!text) return;
+  input.disabled = true;
+  try {
+    await db.collection(THREADS_COLLECTION).doc(threadId).collection('comments').add({
+      content: text,
+      createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    });
+    await db.collection(THREADS_COLLECTION).doc(threadId).update({
+      commentCount: firebase.firestore.FieldValue.increment(1)
+    });
+    input.value = '';
+  } catch (err) {
+    console.error(err);
+    alert("Couldn't post your comment: " + err.message);
+  } finally {
+    input.disabled = false;
+  }
+}
+
+document.getElementById('filterCategory').addEventListener('change', renderThreads);
+
+/* ============================================================
+   Composer
+   ============================================================ */
+const ideaAnon = document.getElementById('ideaAnon');
+const ideaName = document.getElementById('ideaName');
+ideaAnon.addEventListener('change', () => {
+  ideaName.disabled = ideaAnon.checked;
+  if (ideaAnon.checked) ideaName.value = '';
+});
+
+function showComposerError(msg){
+  const el = document.getElementById('composerError');
+  el.textContent = msg;
+  el.classList.add('show');
+}
+function clearComposerError(){
+  const el = document.getElementById('composerError');
+  el.classList.remove('show');
+  el.textContent = '';
+}
+
+document.getElementById('postBtn').addEventListener('click', async () => {
+  clearComposerError();
+
+  if (!firebaseReady) {
+    showComposerError("This board isn't connected to Firebase yet, so ideas can't be saved.");
+    return;
+  }
+
+  const content = document.getElementById('ideaContent').value.trim();
+  if (!content) {
+    showComposerError("Write your idea before posting.");
+    return;
+  }
+
+  const category = document.querySelector('input[name="cat"]:checked').value;
+  const isAnonymous = ideaAnon.checked;
+  const authorName = isAnonymous ? '' : ideaName.value.trim();
+
+  const btn = document.getElementById('postBtn');
+  btn.disabled = true;
+  btn.textContent = 'Posting…';
+
+  try {
+    await db.collection(THREADS_COLLECTION).add({
+      category,
+      content,
+      authorName,
+      isAnonymous,
+      upvotes: 0,
+      downvotes: 0,
+      commentCount: 0,
+      locked: false,
+      createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    });
+    document.getElementById('ideaContent').value = '';
+    ideaName.value = '';
+    ideaAnon.checked = false;
+    ideaName.disabled = false;
+  } catch (err) {
+    console.error(err);
+    showComposerError("Couldn't post your idea: " + err.message);
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Post idea';
+  }
+});
+</script>
+
+</body>
+</html>

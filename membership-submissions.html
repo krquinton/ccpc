@@ -1,0 +1,1311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Membership Submissions</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#FAF8F2;
+    --paper:#FFFFFF;
+    --ink:#0F2B3D;
+    --ink-soft:#5C7480;
+    --line:#E4E1D6;
+    --line-strong:#D2CDBB;
+    --accent:#083D5F;
+    --accent-dark:#062C40;
+    --accent-tint:#E7F0F4;
+    --danger:#BB1421;
+    --danger-tint:#FBEAEA;
+    --radius:10px;
+    --shadow:0 1px 2px rgba(8,61,95,0.05), 0 8px 24px rgba(8,61,95,0.06);
+    --serif: 'Fredoka', -apple-system, BlinkMacSystemFont, sans-serif;
+    --sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--bg);
+    color:var(--ink);
+    font-family:var(--sans);
+    line-height:1.5;
+    -webkit-font-smoothing:antialiased;
+  }
+
+  /* Top bar */
+  .topbar{
+    border-bottom:2px solid var(--ink);
+    background:var(--bg);
+    padding:22px 28px;
+    display:flex;
+    justify-content:space-between;
+    align-items:baseline;
+    flex-wrap:wrap;
+    gap:10px;
+  }
+  .topbar h1{
+    font-family:var(--serif);
+    font-weight:600;
+    font-size:26px;
+    margin:0;
+    letter-spacing:-0.01em;
+  }
+  .topbar .right{
+    display:flex;
+    align-items:center;
+    gap:14px;
+  }
+  .topbar .count{font-size:13px; color:var(--ink-soft);}
+  .lock-btn{
+    font-family:var(--sans);
+    font-size:12.5px;
+    font-weight:600;
+    color:var(--ink-soft);
+    background:var(--paper);
+    border:1px solid var(--line-strong);
+    padding:7px 14px;
+    border-radius:999px;
+    cursor:pointer;
+  }
+  .lock-btn:hover{border-color:var(--accent); color:var(--accent-dark);}
+
+  .config-warning{
+    display:none;
+    background:#FBF4E4;
+    border:1px solid #E4CC8F;
+    color:#7A5A0F;
+    font-size:13px;
+    padding:12px 16px;
+    border-radius:8px;
+    margin:20px 28px 0;
+  }
+  .config-warning.show{display:block;}
+  .config-warning code{background:#F3E4BC; padding:1px 5px; border-radius:4px; font-size:12px;}
+
+  /* Dashboard stats */
+  .dashboard{
+    max-width:1240px;
+    margin:24px auto 0;
+    padding:0 28px;
+    display:grid;
+    grid-template-columns:repeat(auto-fit, minmax(200px, 1fr));
+    gap:16px;
+  }
+  .stat-card{
+    background:var(--paper);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    box-shadow:var(--shadow);
+    padding:20px 22px;
+  }
+  .stat-card .n{
+    font-family:var(--serif);
+    font-size:30px;
+    font-weight:700;
+    color:var(--accent-dark);
+    line-height:1;
+  }
+  .stat-card .l{
+    font-size:12.5px;
+    color:var(--ink-soft);
+    margin-top:6px;
+    font-weight:500;
+  }
+
+  /* Page-level tabs */
+  .page-tabs{
+    max-width:1240px;
+    margin:24px auto 0;
+    padding:0 28px;
+    display:flex;
+    gap:4px;
+  }
+  .page-tab-btn{
+    font-family:var(--sans);
+    font-size:14px;
+    font-weight:600;
+    color:var(--ink-soft);
+    background:transparent;
+    border:none;
+    border-bottom:2px solid transparent;
+    padding:10px 4px;
+    margin-right:20px;
+    cursor:pointer;
+  }
+  .page-tab-btn.active{
+    color:var(--accent-dark);
+    border-bottom-color:var(--accent);
+  }
+
+  .page-panel{display:none;}
+  .page-panel.active{display:block;}
+
+  /* Layout: list + detail */
+  .layout{
+    display:grid;
+    grid-template-columns:360px 1fr;
+    gap:24px;
+    max-width:1240px;
+    margin:20px auto 80px;
+    padding:0 28px;
+    align-items:start;
+  }
+  @media (max-width:880px){
+    .layout{grid-template-columns:1fr;}
+  }
+
+  /* List panel */
+  .list-panel{
+    background:var(--paper);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    box-shadow:var(--shadow);
+    overflow:hidden;
+  }
+  .list-search{
+    padding:16px 18px;
+    border-bottom:1px solid var(--line);
+  }
+  .list-search input{
+    width:100%;
+    font-family:var(--sans);
+    font-size:14px;
+    padding:9px 12px;
+    border:1px solid var(--line-strong);
+    border-radius:7px;
+    background:#FCFCFB;
+  }
+  .list-search input:focus{
+    outline:none;
+    border-color:var(--accent);
+    box-shadow:0 0 0 3px var(--accent-tint);
+  }
+
+  .member-list{
+    list-style:none;
+    margin:0;
+    padding:0;
+    max-height:calc(100vh - 320px);
+    min-height:200px;
+    overflow-y:auto;
+  }
+  .member-item{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    padding:14px 18px;
+    border-bottom:1px solid var(--line);
+    cursor:pointer;
+    transition:background .12s ease;
+  }
+  .member-item:last-child{border-bottom:none;}
+  .member-item:hover{background:#FAFBF9;}
+  .member-item.active{background:var(--accent-tint);}
+
+  .avatar{
+    width:38px; height:38px;
+    border-radius:50%;
+    background:#EDEEE9;
+    border:1px solid var(--line-strong);
+    display:flex; align-items:center; justify-content:center;
+    font-size:13px; font-weight:600;
+    color:var(--ink-soft);
+    overflow:hidden;
+    flex-shrink:0;
+  }
+
+  .member-item .meta{min-width:0; flex:1;}
+  .member-item .name{
+    font-size:14px;
+    font-weight:600;
+    color:var(--ink);
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+  }
+  .member-item .sub{
+    font-size:12px;
+    color:var(--ink-soft);
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+  }
+  .status-chip{
+    font-size:10.5px;
+    font-weight:700;
+    padding:2px 8px;
+    border-radius:999px;
+    background:#F1F2EE;
+    color:var(--ink-soft);
+    border:1px solid var(--line-strong);
+    white-space:nowrap;
+    flex-shrink:0;
+  }
+  .status-chip.stage-final{
+    background:var(--accent-tint);
+    color:var(--accent-dark);
+    border-color:var(--accent);
+  }
+
+  .empty-state, .loading-state{
+    padding:40px 20px;
+    text-align:center;
+    color:var(--ink-soft);
+    font-size:13.5px;
+  }
+
+  /* Detail panel */
+  .detail-panel{
+    background:var(--paper);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    box-shadow:var(--shadow);
+    min-height:400px;
+  }
+
+  .detail-placeholder{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    height:400px;
+    color:var(--ink-soft);
+    font-size:14px;
+    text-align:center;
+    padding:0 40px;
+  }
+
+  .detail-header{
+    display:flex;
+    gap:20px;
+    align-items:flex-start;
+    padding:32px;
+    border-bottom:1px solid var(--line);
+  }
+  .detail-photo{
+    width:88px; height:88px;
+    border-radius:10px;
+    background:var(--accent-tint);
+    border:1px solid var(--line-strong);
+    overflow:hidden;
+    flex-shrink:0;
+    display:flex; align-items:center; justify-content:center;
+    color:var(--accent-dark);
+    font-family:var(--serif);
+    font-weight:600;
+    font-size:26px;
+  }
+
+  .detail-header .headtext{flex:1; min-width:0;}
+  .detail-header h2{
+    font-family:var(--serif);
+    font-size:24px;
+    font-weight:600;
+    margin:0 0 4px;
+  }
+  .detail-header .nickname{
+    font-size:14px;
+    color:var(--ink-soft);
+    margin:0 0 8px;
+  }
+  .detail-header .timestamp-badge{
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+    font-size:12.5px;
+    color:var(--accent-dark);
+    background:var(--accent-tint);
+    border:1px solid var(--accent);
+    padding:5px 11px;
+    border-radius:999px;
+    font-weight:600;
+  }
+
+  .detail-actions{
+    display:flex;
+    gap:8px;
+    flex-shrink:0;
+  }
+  .action-btn{
+    font-family:var(--sans);
+    font-size:12.5px;
+    font-weight:600;
+    padding:8px 14px;
+    border-radius:7px;
+    cursor:pointer;
+    border:1px solid var(--line-strong);
+    background:var(--paper);
+    color:var(--ink);
+  }
+  .action-btn:hover{border-color:var(--accent); color:var(--accent-dark);}
+  .action-btn.danger{color:var(--danger); border-color:#E3B8A9;}
+  .action-btn.danger:hover{background:var(--danger-tint);}
+  .action-btn.primary{background:var(--accent); border-color:var(--accent); color:#fff;}
+  .action-btn.primary:hover{background:var(--accent-dark);}
+
+  .detail-section{
+    padding:26px 32px;
+    border-bottom:1px solid var(--line);
+  }
+  .detail-section:last-child{border-bottom:none;}
+  .detail-section h3{
+    font-family:var(--serif);
+    font-size:16px;
+    font-weight:600;
+    margin:0 0 16px;
+    color:var(--ink);
+  }
+
+  .detail-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:16px 24px;
+  }
+  @media (max-width:560px){
+    .detail-grid{grid-template-columns:1fr;}
+  }
+  .detail-grid.full{grid-template-columns:1fr;}
+
+  .kv .k{
+    font-size:11.5px;
+    color:var(--ink-soft);
+    margin:0 0 3px;
+    font-weight:600;
+  }
+  .kv .v{
+    font-size:14.5px;
+    color:var(--ink);
+    margin:0;
+    word-break:break-word;
+  }
+  .kv .v.empty{color:var(--ink-soft); font-style:italic;}
+
+  .declaration-list{
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+  }
+  .declaration-row{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    font-size:14px;
+  }
+  .declaration-row .dot{
+    width:18px; height:18px;
+    border-radius:5px;
+    flex-shrink:0;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .declaration-row.yes .dot{background:var(--accent-tint); border:1px solid var(--accent);}
+  .declaration-row.no .dot{background:#F1F2EE; border:1px solid var(--line-strong);}
+  .declaration-row.no{color:var(--ink-soft);}
+
+  /* Status pipeline */
+  .status-banner{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    background:var(--accent-tint);
+    border:1px solid var(--accent);
+    border-radius:8px;
+    padding:12px 16px;
+    margin-bottom:18px;
+  }
+  .status-banner .label{font-size:11.5px; font-weight:600; color:var(--accent-dark); margin:0 0 2px;}
+  .status-banner .value{font-family:var(--serif); font-size:17px; font-weight:600; color:var(--ink); margin:0;}
+
+  .stage-list{display:flex; flex-direction:column; gap:2px;}
+  .stage-row{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    padding:11px 4px;
+    border-bottom:1px solid var(--line);
+  }
+  .stage-row:last-child{border-bottom:none;}
+  .stage-row input[type=checkbox]{
+    width:19px; height:19px;
+    accent-color:var(--accent);
+    cursor:pointer;
+    flex-shrink:0;
+  }
+  .stage-row input[type=checkbox]:disabled{cursor:not-allowed; opacity:0.4;}
+  .stage-row label{
+    font-size:14px;
+    color:var(--ink);
+    cursor:pointer;
+  }
+  .stage-row.disabled label{color:var(--ink-soft); cursor:not-allowed;}
+  .stage-row .step-num{
+    width:22px; height:22px;
+    border-radius:50%;
+    background:#F1F2EE;
+    border:1px solid var(--line-strong);
+    font-size:11px;
+    font-weight:700;
+    color:var(--ink-soft);
+    display:flex; align-items:center; justify-content:center;
+    flex-shrink:0;
+  }
+  .stage-row.done .step-num{background:var(--accent); border-color:var(--accent); color:#fff;}
+
+  /* Edit form */
+  .edit-field{display:flex; flex-direction:column; gap:6px;}
+  .edit-field label{font-size:12px; font-weight:600; color:var(--ink);}
+  .edit-field input, .edit-field select, .edit-field textarea{
+    font-family:var(--sans);
+    font-size:14px;
+    padding:9px 11px;
+    border:1px solid var(--line-strong);
+    border-radius:7px;
+    background:#FCFCFB;
+    width:100%;
+  }
+  .edit-field input:focus, .edit-field select:focus, .edit-field textarea:focus{
+    outline:none; border-color:var(--accent); box-shadow:0 0 0 3px var(--accent-tint);
+  }
+  .edit-field textarea{resize:vertical; min-height:56px;}
+  .edit-check{
+    display:flex; align-items:center; gap:8px; font-size:13.5px;
+  }
+  .edit-check input{width:16px; height:16px; accent-color:var(--accent);}
+  .edit-actions{
+    display:flex;
+    gap:10px;
+    padding:20px 32px 28px;
+  }
+
+  /* Access log */
+  .log-wrap{
+    max-width:1240px;
+    margin:20px auto 80px;
+    padding:0 28px;
+  }
+  .log-table-card{
+    background:var(--paper);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    box-shadow:var(--shadow);
+    overflow:hidden;
+  }
+  table.log-table{width:100%; border-collapse:collapse;}
+  table.log-table th{
+    text-align:left;
+    font-size:11.5px;
+    text-transform:uppercase;
+    letter-spacing:0.03em;
+    color:var(--ink-soft);
+    background:#FAFBF8;
+    padding:12px 20px;
+    border-bottom:1px solid var(--line);
+  }
+  table.log-table td{
+    padding:13px 20px;
+    font-size:14px;
+    border-bottom:1px solid var(--line);
+  }
+  table.log-table tr:last-child td{border-bottom:none;}
+  .role-chip{
+    font-size:12px;
+    font-weight:700;
+    padding:3px 10px;
+    border-radius:999px;
+    background:var(--accent-tint);
+    color:var(--accent-dark);
+    border:1px solid var(--accent);
+  }
+
+  /* Access gate */
+  #accessGate{
+    position:fixed;
+    inset:0;
+    background:var(--bg);
+    z-index:1000;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:20px;
+  }
+  .gate-card{
+    background:var(--paper);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    box-shadow:var(--shadow);
+    max-width:360px;
+    width:100%;
+    padding:36px 32px;
+    text-align:center;
+  }
+  .gate-card .lock{
+    width:44px; height:44px;
+    border-radius:50%;
+    background:var(--accent-tint);
+    border:1px solid var(--accent);
+    display:flex; align-items:center; justify-content:center;
+    margin:0 auto 18px;
+  }
+  .gate-card h2{
+    font-family:var(--serif);
+    font-size:19px;
+    font-weight:600;
+    margin:0 0 6px;
+  }
+  .gate-card p{
+    font-size:13.5px;
+    color:var(--ink-soft);
+    margin:0 0 20px;
+  }
+  .gate-card input{
+    width:100%;
+    font-family:var(--sans);
+    font-size:14.5px;
+    padding:11px 12px;
+    border:1px solid var(--line-strong);
+    border-radius:7px;
+    background:#FCFCFB;
+    text-align:center;
+    letter-spacing:0.02em;
+  }
+  .gate-card input:focus{
+    outline:none;
+    border-color:var(--accent);
+    box-shadow:0 0 0 3px var(--accent-tint);
+  }
+  .gate-card input.shake{
+    animation:shake .32s ease;
+    border-color:var(--danger);
+  }
+  @keyframes shake{
+    0%,100%{transform:translateX(0);}
+    25%{transform:translateX(-6px);}
+    75%{transform:translateX(6px);}
+  }
+  .gate-card button{
+    width:100%;
+    margin-top:12px;
+    font-family:var(--sans);
+    font-weight:700;
+    font-size:14.5px;
+    color:#fff;
+    background:var(--accent);
+    border:none;
+    border-radius:7px;
+    padding:12px 16px;
+    cursor:pointer;
+    transition:background .15s ease;
+  }
+  .gate-card button:hover{background:var(--accent-dark);}
+  .gate-card .gate-error{
+    display:none;
+    font-size:12.5px;
+    color:var(--danger);
+    margin-top:10px;
+    text-align:center;
+  }
+  .gate-card .gate-error.show{display:block;}
+
+  .site-content{display:none;}
+  .site-content.unlocked{display:block;}
+</style>
+</head>
+<body>
+
+<div id="accessGate">
+  <div class="gate-card">
+    <div class="lock">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M6 11V8a6 6 0 1112 0v3" stroke="#083D5F" stroke-width="2" stroke-linecap="round"/><rect x="4" y="11" width="16" height="10" rx="2" stroke="#083D5F" stroke-width="2"/></svg>
+    </div>
+    <h2>Restricted Access</h2>
+    <p>Enter your access code to view membership submissions.</p>
+    <form id="gateForm">
+      <input type="password" id="gateInput" placeholder="Access code" autocomplete="off" autofocus />
+      <button type="submit">Unlock</button>
+      <div class="gate-error" id="gateError">Incorrect code — please try again.</div>
+    </form>
+  </div>
+</div>
+
+<div class="site-content" id="siteContent">
+
+  <div class="topbar">
+    <h1>Membership Submissions</h1>
+    <div class="right">
+      <span class="count" id="memberCount">Loading…</span>
+      <button class="lock-btn" id="lockBtn">Lock</button>
+    </div>
+  </div>
+
+  <div id="configWarning" class="config-warning">
+    Firebase isn't connected yet — fill in the <code>firebaseConfig</code> object near the bottom of this file.
+  </div>
+
+  <div class="dashboard">
+    <div class="stat-card">
+      <div class="n" id="statTotalSubmissions">0</div>
+      <div class="l">Total Submissions</div>
+    </div>
+    <div class="stat-card">
+      <div class="n" id="statTotalMembers">0</div>
+      <div class="l">Total Members (Regular)</div>
+    </div>
+  </div>
+
+  <div class="page-tabs">
+    <button class="page-tab-btn active" data-page="submissions">Submissions</button>
+    <button class="page-tab-btn" data-page="log">Access Log</button>
+  </div>
+
+  <div class="page-panel active" id="page-submissions">
+    <div class="layout">
+
+      <div class="list-panel">
+        <div class="list-search">
+          <input type="text" id="searchInput" placeholder="Search by name or email…" />
+        </div>
+        <ul class="member-list" id="memberList">
+          <li class="loading-state">Loading submissions…</li>
+        </ul>
+      </div>
+
+      <div class="detail-panel" id="detailPanel">
+        <div class="detail-placeholder">Select a submission from the list to view the full application details.</div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="page-panel" id="page-log">
+    <div class="log-wrap">
+      <div class="log-table-card">
+        <table class="log-table">
+          <thead>
+            <tr><th>Code used</th><th>Timestamp</th></tr>
+          </thead>
+          <tbody id="logTableBody">
+            <tr><td colspan="2" class="empty-state">Loading access log…</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /.site-content -->
+
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore-compat.js"></script>
+
+<script>
+/* ============================================================
+   FIREBASE CONFIG
+   ============================================================ */
+const firebaseConfig = {
+  apiKey: "AIzaSyB4IiCCQHtGeIT44n71oGlKk7PIOSWxfg8",
+  authDomain: "ccpc-1943f.firebaseapp.com",
+  databaseURL: "https://ccpc-1943f-default-rtdb.firebaseio.com",
+  projectId: "ccpc-1943f",
+  storageBucket: "ccpc-1943f.firebasestorage.app",
+  messagingSenderId: "904942754236",
+  appId: "1:904942754236:web:aecbec51d5cd0b745b33b9"
+};
+const FIRESTORE_COLLECTION = "membershipApplications";
+const ACCESS_LOG_COLLECTION = "accessLogs";
+
+/* ============================================================
+   Access codes — each maps to a friendly role label used in the log.
+   Note: this is a client-side gate for convenience, not real security.
+   Anyone who can view this file's source can see these codes.
+   ============================================================ */
+const ACCESS_CODES = {
+  "ccpc2026members": "Members",
+  "ccpc2026admin":   "Admin",
+  "ccpc2026events":  "Events",
+  "ccpc2026finance": "Finance",
+  "ccpc2026larry":   "Larry",
+  "ccpc2026ton":     "Ton"
+};
+
+/* Status pipeline — order matters. Each stage requires the one before it. */
+const STAGES = [
+  { key: "forAssessment",     label: "For Assessment",  who: "Membership Committee" },
+  { key: "approvedCommittee", label: "Approved",         who: "Membership Committee" },
+  { key: "approvedPresident", label: "Approved",         who: "President" },
+  { key: "paidFinance",       label: "Paid",             who: "Finance" },
+  { key: "regularMember",     label: "Regular Member",   who: "" }
+];
+
+function stageDisplayLabel(stage){
+  return stage.who ? `${stage.label} (${stage.who})` : stage.label;
+}
+
+function computeStatus(stages){
+  let status = "Submitted";
+  for (const s of STAGES){
+    if (stages && stages[s.key]) {
+      status = stageDisplayLabel(s);
+    } else {
+      break;
+    }
+  }
+  return status;
+}
+
+let db = null;
+let firebaseReady = false;
+let allMembers = [];
+let allLogs = [];
+let activeId = null;
+let editingId = null;
+
+function initFirebase(){
+  const looksUnconfigured = !firebaseConfig.apiKey || firebaseConfig.apiKey === "YOUR_API_KEY";
+  if (looksUnconfigured) {
+    document.getElementById('configWarning').classList.add('show');
+    document.getElementById('memberList').innerHTML = '<li class="empty-state">Not connected to Firebase yet.</li>';
+    document.getElementById('memberCount').textContent = '';
+    return;
+  }
+  try {
+    firebase.initializeApp(firebaseConfig);
+    db = firebase.firestore();
+    firebaseReady = true;
+    startListeningMembers();
+    startListeningLogs();
+  } catch (err) {
+    console.error("Firebase init failed:", err);
+    document.getElementById('configWarning').classList.add('show');
+  }
+}
+
+function startListeningMembers(){
+  db.collection(FIRESTORE_COLLECTION)
+    .orderBy('submittedAt', 'desc')
+    .onSnapshot(snapshot => {
+      allMembers = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      applySearch();
+      updateDashboard();
+      // Keep the open detail panel in sync with live data
+      if (activeId && !editingId) {
+        const current = allMembers.find(m => m.id === activeId);
+        if (current) renderDetail(current);
+      }
+    }, err => {
+      console.error(err);
+      document.getElementById('memberList').innerHTML =
+        `<li class="empty-state">Couldn't load submissions: ${esc(err.message)}</li>`;
+    });
+}
+
+function startListeningLogs(){
+  db.collection(ACCESS_LOG_COLLECTION)
+    .orderBy('timestamp', 'desc')
+    .limit(300)
+    .onSnapshot(snapshot => {
+      allLogs = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      renderLogTable();
+    }, err => {
+      console.error(err);
+      document.getElementById('logTableBody').innerHTML =
+        `<tr><td colspan="2" class="empty-state">Couldn't load access log: ${esc(err.message)}</td></tr>`;
+    });
+}
+
+function logAccess(codeLabel){
+  if (!db) return;
+  db.collection(ACCESS_LOG_COLLECTION).add({
+    codeLabel: codeLabel,
+    timestamp: firebase.firestore.FieldValue.serverTimestamp()
+  }).catch(err => console.error("Couldn't write access log:", err));
+}
+
+function updateDashboard(){
+  document.getElementById('statTotalSubmissions').textContent = allMembers.length;
+  const totalMembers = allMembers.filter(m => computeStatus(m.stages) === 'Regular Member').length;
+  document.getElementById('statTotalMembers').textContent = totalMembers;
+}
+
+/* ============================================================
+   Helpers
+   ============================================================ */
+function initials(name){
+  if (!name) return '?';
+  return name.trim().split(/\s+/).slice(0,2).map(w => w[0].toUpperCase()).join('');
+}
+
+function formatTimestamp(ts){
+  if (!ts) return 'Pending…';
+  const date = ts.toDate ? ts.toDate() : new Date(ts);
+  return date.toLocaleString(undefined, {
+    year:'numeric', month:'short', day:'numeric',
+    hour:'2-digit', minute:'2-digit'
+  });
+}
+
+function esc(str){
+  const d = document.createElement('div');
+  d.textContent = str == null ? '' : String(str);
+  return d.innerHTML;
+}
+
+/* ============================================================
+   Member list
+   ============================================================ */
+function renderList(members){
+  const listEl = document.getElementById('memberList');
+  document.getElementById('memberCount').textContent =
+    members.length === 1 ? '1 submission' : `${members.length} submissions`;
+
+  if (members.length === 0) {
+    listEl.innerHTML = '<li class="empty-state">No submissions match your search.</li>';
+    return;
+  }
+
+  listEl.innerHTML = members.map(m => {
+    const status = computeStatus(m.stages);
+    return `
+    <li class="member-item ${m.id === activeId ? 'active' : ''}" data-id="${m.id}">
+      <div class="avatar">${initials(m.fullName)}</div>
+      <div class="meta">
+        <div class="name">${esc(m.fullName || 'Unnamed')}</div>
+        <div class="sub">${esc(m.email || '')}</div>
+      </div>
+      <div class="status-chip ${status === 'Regular Member' ? 'stage-final' : ''}">${esc(status)}</div>
+    </li>
+  `;
+  }).join('');
+
+  listEl.querySelectorAll('.member-item').forEach(item => {
+    item.addEventListener('click', () => {
+      const id = item.getAttribute('data-id');
+      const member = allMembers.find(m => m.id === id);
+      editingId = null;
+      if (member) renderDetail(member);
+      activeId = id;
+      listEl.querySelectorAll('.member-item').forEach(el => el.classList.remove('active'));
+      item.classList.add('active');
+    });
+  });
+}
+
+function applySearch(){
+  const q = document.getElementById('searchInput').value.trim().toLowerCase();
+  if (!q) { renderList(allMembers); return; }
+  const filtered = allMembers.filter(m =>
+    (m.fullName || '').toLowerCase().includes(q) ||
+    (m.email || '').toLowerCase().includes(q) ||
+    (m.nickname || '').toLowerCase().includes(q)
+  );
+  renderList(filtered);
+}
+document.getElementById('searchInput').addEventListener('input', applySearch);
+
+/* ============================================================
+   Detail view
+   ============================================================ */
+function kv(label, value, empty){
+  return `<div class="kv"><p class="k">${esc(label)}</p><p class="v ${value ? '' : 'empty'}">${value ? esc(value) : (empty || 'Not provided')}</p></div>`;
+}
+
+function declarationRow(label, checked){
+  return `<div class="declaration-row ${checked ? 'yes' : 'no'}">
+    <span class="dot">${checked
+      ? '<svg width="11" height="11" viewBox="0 0 24 24" fill="none"><path d="M4 12.5L9.5 18L20 6" stroke="#083D5F" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>'
+      : ''}</span>
+    <span>${esc(label)}</span>
+  </div>`;
+}
+
+function renderStagePipeline(m){
+  const stages = m.stages || {};
+  const status = computeStatus(stages);
+
+  const rows = STAGES.map((s, i) => {
+    const checked = !!stages[s.key];
+    const prevOk = i === 0 || !!stages[STAGES[i-1].key];
+    const disabled = !checked && !prevOk;
+    return `
+      <div class="stage-row ${checked ? 'done' : ''} ${disabled ? 'disabled' : ''}">
+        <span class="step-num">${checked ? '✓' : i + 1}</span>
+        <input type="checkbox" id="stage-${i}" ${checked ? 'checked' : ''} ${disabled ? 'disabled' : ''} data-index="${i}" />
+        <label for="stage-${i}">${esc(stageDisplayLabel(s))}</label>
+      </div>
+    `;
+  }).join('');
+
+  return `
+    <div class="status-banner">
+      <div>
+        <p class="label">Current status</p>
+        <p class="value">${esc(status)}</p>
+      </div>
+    </div>
+    <div class="stage-list">${rows}</div>
+  `;
+}
+
+function attachStageListeners(memberId){
+  document.querySelectorAll('#statusSection input[type=checkbox][data-index]').forEach(box => {
+    box.addEventListener('change', (e) => {
+      const index = Number(e.target.getAttribute('data-index'));
+      updateStage(memberId, index, e.target.checked);
+    });
+  });
+}
+
+async function updateStage(memberId, index, checked){
+  const member = allMembers.find(m => m.id === memberId);
+  if (!member) return;
+  const stages = Object.assign({}, member.stages || {});
+
+  if (checked) {
+    const prevOk = index === 0 || !!stages[STAGES[index-1].key];
+    if (!prevOk) return; // shouldn't happen, checkbox would be disabled
+    stages[STAGES[index].key] = true;
+  } else {
+    // Unchecking breaks the chain — cascade-uncheck everything after it too.
+    for (let j = index; j < STAGES.length; j++) {
+      stages[STAGES[j].key] = false;
+    }
+  }
+
+  const newStatus = computeStatus(stages);
+
+  // Optimistic local update so the UI feels instant
+  member.stages = stages;
+  member.status = newStatus;
+  renderDetail(member);
+  renderList(allMembers);
+  updateDashboard();
+
+  try {
+    await db.collection(FIRESTORE_COLLECTION).doc(memberId).update({
+      stages: stages,
+      status: newStatus,
+      statusUpdatedAt: firebase.firestore.FieldValue.serverTimestamp()
+    });
+  } catch (err) {
+    console.error(err);
+    alert("Couldn't save the status change: " + err.message);
+  }
+}
+
+function renderDetail(m){
+  activeId = m.id;
+  const panel = document.getElementById('detailPanel');
+  const decl = m.declarations || {};
+
+  panel.innerHTML = `
+    <div class="detail-header">
+      <div class="detail-photo">${initials(m.fullName)}</div>
+      <div class="headtext">
+        <h2>${esc(m.fullName || 'Unnamed applicant')}</h2>
+        <p class="nickname">${m.nickname ? '“' + esc(m.nickname) + '”' : ''}</p>
+        <span class="timestamp-badge">Submitted ${esc(formatTimestamp(m.submittedAt))}</span>
+      </div>
+      <div class="detail-actions">
+        <button class="action-btn" id="editBtn">Edit</button>
+        <button class="action-btn danger" id="deleteBtn">Delete</button>
+      </div>
+    </div>
+
+    <div class="detail-section" id="statusSection">
+      <h3>Status</h3>
+      ${renderStagePipeline(m)}
+    </div>
+
+    <div class="detail-section">
+      <h3>Personal Information</h3>
+      <div class="detail-grid">
+        ${kv('Full name', m.fullName)}
+        ${kv('Nickname', m.nickname)}
+        ${kv('Birthdate', m.birthdate)}
+        ${kv('Age', m.age != null ? String(m.age) : '')}
+        ${kv('Gender', m.gender)}
+        ${kv('Civil status', m.civilStatus)}
+      </div>
+    </div>
+
+    <div class="detail-section">
+      <h3>Contact Details</h3>
+      <div class="detail-grid">
+        ${kv('Phone number', m.phone)}
+        ${kv('Email address', m.email)}
+      </div>
+      <div class="detail-grid full" style="margin-top:16px;">
+        ${kv('Home address', m.address)}
+      </div>
+      <div class="detail-grid" style="margin-top:16px;">
+        ${kv('Emergency contact & relationship', m.emergencyContact)}
+        ${kv('Contact number', m.emergencyNumber)}
+      </div>
+    </div>
+
+    <div class="detail-section">
+      <h3>Health Information</h3>
+      <div class="detail-grid">
+        ${kv('Height', m.height != null ? m.height + ' cm' : '')}
+        ${kv('Weight', m.weight != null ? m.weight + ' kg' : '')}
+        ${kv('Blood type', m.bloodType)}
+        ${kv('Medical condition', m.medicalCondition)}
+      </div>
+      <div class="detail-grid full" style="margin-top:16px;">
+        ${kv('Medication', m.medication, 'None listed')}
+      </div>
+    </div>
+
+    <div class="detail-section">
+      <h3>Declarations</h3>
+      <div class="declaration-list">
+        ${declarationRow('Confirmed physically fit to participate', decl.fit)}
+        ${declarationRow('Agreed to follow club rules and guidelines', decl.followRules)}
+        ${declarationRow('Released organization from liability', decl.notLiable)}
+        ${declarationRow('Requested to join Facebook group' + (decl.joinFacebookGroup && m.facebookName ? ` — as "${m.facebookName}"` : ''), decl.joinFacebookGroup)}
+      </div>
+    </div>
+  `;
+
+  attachStageListeners(m.id);
+  document.getElementById('editBtn').addEventListener('click', () => renderEditForm(m));
+  document.getElementById('deleteBtn').addEventListener('click', () => deleteMember(m));
+}
+
+/* ============================================================
+   Edit
+   ============================================================ */
+function renderEditForm(m){
+  editingId = m.id;
+  const panel = document.getElementById('detailPanel');
+
+  panel.innerHTML = `
+    <div class="detail-header">
+      <div class="detail-photo">${initials(m.fullName)}</div>
+      <div class="headtext">
+        <h2>Editing: ${esc(m.fullName || 'Unnamed applicant')}</h2>
+        <p class="nickname">Update the fields below and save your changes.</p>
+      </div>
+    </div>
+
+    <div class="detail-section">
+      <h3>Personal Information</h3>
+      <div class="detail-grid">
+        <div class="edit-field"><label>Full name</label><input id="ef-fullName" value="${esc(m.fullName || '')}"></div>
+        <div class="edit-field"><label>Nickname</label><input id="ef-nickname" value="${esc(m.nickname || '')}"></div>
+        <div class="edit-field"><label>Birthdate</label><input type="date" id="ef-birthdate" value="${esc(m.birthdate || '')}"></div>
+        <div class="edit-field"><label>Gender</label>
+          <select id="ef-gender">
+            ${['Male','Female','Other'].map(g => `<option ${m.gender===g?'selected':''}>${g}</option>`).join('')}
+          </select>
+        </div>
+        <div class="edit-field"><label>Civil status</label>
+          <select id="ef-civilStatus">
+            ${['Single','Married','Widowed','Separated'].map(c => `<option ${m.civilStatus===c?'selected':''}>${c}</option>`).join('')}
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <div class="detail-section">
+      <h3>Contact Details</h3>
+      <div class="detail-grid">
+        <div class="edit-field"><label>Phone number</label><input id="ef-phone" value="${esc(m.phone || '')}"></div>
+        <div class="edit-field"><label>Email address</label><input type="email" id="ef-email" value="${esc(m.email || '')}"></div>
+      </div>
+      <div class="detail-grid full" style="margin-top:16px;">
+        <div class="edit-field"><label>Home address</label><textarea id="ef-address">${esc(m.address || '')}</textarea></div>
+      </div>
+      <div class="detail-grid" style="margin-top:16px;">
+        <div class="edit-field"><label>Emergency contact & relationship</label><input id="ef-emergencyContact" value="${esc(m.emergencyContact || '')}"></div>
+        <div class="edit-field"><label>Contact number</label><input id="ef-emergencyNumber" value="${esc(m.emergencyNumber || '')}"></div>
+      </div>
+    </div>
+
+    <div class="detail-section">
+      <h3>Health Information</h3>
+      <div class="detail-grid">
+        <div class="edit-field"><label>Height (cm)</label><input type="number" step="0.1" id="ef-height" value="${m.height != null ? m.height : ''}"></div>
+        <div class="edit-field"><label>Weight (kg)</label><input type="number" step="0.1" id="ef-weight" value="${m.weight != null ? m.weight : ''}"></div>
+        <div class="edit-field"><label>Blood type</label>
+          <select id="ef-bloodType">
+            ${['A+','A-','B+','B-','AB+','AB-','O+','O-','Unknown'].map(b => `<option ${m.bloodType===b?'selected':''}>${b}</option>`).join('')}
+          </select>
+        </div>
+        <div class="edit-field"><label>Medical condition</label>
+          <select id="ef-medicalCondition">
+            ${['Yes','No'].map(x => `<option ${m.medicalCondition===x?'selected':''}>${x}</option>`).join('')}
+          </select>
+        </div>
+      </div>
+      <div class="detail-grid full" style="margin-top:16px;">
+        <div class="edit-field"><label>Medication</label><input id="ef-medication" value="${esc(m.medication || '')}"></div>
+      </div>
+    </div>
+
+    <div class="detail-section">
+      <h3>Declarations</h3>
+      <div class="declaration-list">
+        <label class="edit-check"><input type="checkbox" id="ef-fit" ${m.declarations?.fit ? 'checked':''}> Confirmed physically fit to participate</label>
+        <label class="edit-check"><input type="checkbox" id="ef-followRules" ${m.declarations?.followRules ? 'checked':''}> Agreed to follow club rules and guidelines</label>
+        <label class="edit-check"><input type="checkbox" id="ef-notLiable" ${m.declarations?.notLiable ? 'checked':''}> Released organization from liability</label>
+        <label class="edit-check"><input type="checkbox" id="ef-joinFacebookGroup" ${m.declarations?.joinFacebookGroup ? 'checked':''}> Requested to join Facebook group</label>
+        <div class="edit-field" style="max-width:320px;"><label>Facebook name</label><input id="ef-facebookName" value="${esc(m.facebookName || '')}"></div>
+      </div>
+    </div>
+
+    <div class="edit-actions">
+      <button class="action-btn primary" id="saveEditBtn">Save changes</button>
+      <button class="action-btn" id="cancelEditBtn">Cancel</button>
+    </div>
+  `;
+
+  document.getElementById('saveEditBtn').addEventListener('click', () => saveEdit(m));
+  document.getElementById('cancelEditBtn').addEventListener('click', () => { editingId = null; renderDetail(m); });
+}
+
+function val(id){ return document.getElementById(id).value; }
+
+function computeAge(birthdateStr){
+  if (!birthdateStr) return null;
+  const dob = new Date(birthdateStr);
+  if (isNaN(dob.getTime())) return null;
+  const today = new Date();
+  let age = today.getFullYear() - dob.getFullYear();
+  const mo = today.getMonth() - dob.getMonth();
+  if (mo < 0 || (mo === 0 && today.getDate() < dob.getDate())) age--;
+  return age >= 0 ? age : null;
+}
+
+async function saveEdit(original){
+  const birthdate = val('ef-birthdate');
+  const updated = {
+    fullName: val('ef-fullName').trim(),
+    nickname: val('ef-nickname').trim(),
+    birthdate: birthdate,
+    age: computeAge(birthdate),
+    gender: val('ef-gender'),
+    civilStatus: val('ef-civilStatus'),
+    phone: val('ef-phone').trim(),
+    email: val('ef-email').trim(),
+    address: val('ef-address').trim(),
+    emergencyContact: val('ef-emergencyContact').trim(),
+    emergencyNumber: val('ef-emergencyNumber').trim(),
+    height: val('ef-height') ? Number(val('ef-height')) : null,
+    weight: val('ef-weight') ? Number(val('ef-weight')) : null,
+    bloodType: val('ef-bloodType'),
+    medicalCondition: val('ef-medicalCondition'),
+    medication: val('ef-medication').trim(),
+    declarations: {
+      fit: document.getElementById('ef-fit').checked,
+      followRules: document.getElementById('ef-followRules').checked,
+      notLiable: document.getElementById('ef-notLiable').checked,
+      joinFacebookGroup: document.getElementById('ef-joinFacebookGroup').checked
+    },
+    facebookName: document.getElementById('ef-joinFacebookGroup').checked ? val('ef-facebookName').trim() : ""
+  };
+
+  try {
+    await db.collection(FIRESTORE_COLLECTION).doc(original.id).update(updated);
+    editingId = null;
+    const merged = Object.assign({}, original, updated);
+    renderDetail(merged);
+  } catch (err) {
+    console.error(err);
+    alert("Couldn't save changes: " + err.message);
+  }
+}
+
+/* ============================================================
+   Delete
+   ============================================================ */
+async function deleteMember(m){
+  const ok = confirm(`Delete the application for "${m.fullName || 'this applicant'}"? This cannot be undone.`);
+  if (!ok) return;
+  try {
+    await db.collection(FIRESTORE_COLLECTION).doc(m.id).delete();
+    activeId = null;
+    document.getElementById('detailPanel').innerHTML =
+      '<div class="detail-placeholder">Select a submission from the list to view the full application details.</div>';
+  } catch (err) {
+    console.error(err);
+    alert("Couldn't delete this application: " + err.message);
+  }
+}
+
+/* ============================================================
+   Access log table
+   ============================================================ */
+function renderLogTable(){
+  const body = document.getElementById('logTableBody');
+  if (allLogs.length === 0) {
+    body.innerHTML = '<tr><td colspan="2" class="empty-state">No access log entries yet.</td></tr>';
+    return;
+  }
+  body.innerHTML = allLogs.map(l => `
+    <tr>
+      <td><span class="role-chip">${esc(l.codeLabel || 'Unknown')}</span></td>
+      <td>${esc(formatTimestamp(l.timestamp))}</td>
+    </tr>
+  `).join('');
+}
+
+/* ============================================================
+   Page-level tabs (Submissions / Access Log)
+   ============================================================ */
+document.querySelectorAll('.page-tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.page-tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.page-panel').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('page-' + btn.dataset.page).classList.add('active');
+  });
+});
+
+/* ============================================================
+   Access gate — supports multiple codes, each logged with a label.
+   Note: this hides the page behind a code but is not a security
+   boundary (the codes live in this file). For real access control,
+   protect this page with Firebase Auth + Firestore rules instead.
+   ============================================================ */
+const gateForm = document.getElementById('gateForm');
+const gateInput = document.getElementById('gateInput');
+const gateError = document.getElementById('gateError');
+const accessGate = document.getElementById('accessGate');
+const siteContent = document.getElementById('siteContent');
+
+function unlock(codeLabel){
+  accessGate.style.display = 'none';
+  siteContent.classList.add('unlocked');
+  sessionStorage.setItem('ccpc_submissions_unlocked', '1');
+  sessionStorage.setItem('ccpc_submissions_role', codeLabel || '');
+  if (!firebaseReady) initFirebase();
+  if (codeLabel) logAccess(codeLabel);
+}
+
+gateForm.addEventListener('submit', (e) => {
+  e.preventDefault();
+  const entered = gateInput.value;
+  if (Object.prototype.hasOwnProperty.call(ACCESS_CODES, entered)) {
+    unlock(ACCESS_CODES[entered]);
+  } else {
+    gateError.classList.add('show');
+    gateInput.classList.add('shake');
+    gateInput.value = '';
+    gateInput.focus();
+    setTimeout(() => gateInput.classList.remove('shake'), 320);
+  }
+});
+
+document.getElementById('lockBtn').addEventListener('click', () => {
+  sessionStorage.removeItem('ccpc_submissions_unlocked');
+  sessionStorage.removeItem('ccpc_submissions_role');
+  location.reload();
+});
+
+if (sessionStorage.getItem('ccpc_submissions_unlocked') === '1') {
+  unlock(null); // already logged for this session, don't log again
+}
+</script>
+
+</body>
+</html>

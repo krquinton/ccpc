@@ -1,0 +1,74 @@
+[
+  {
+    "date": "2026-10-03",
+    "tag": "Fun Match",
+    "title": "Wrong Outfit, Wrong Paddle",
+    "venue": "PKL Box",
+    "desc": "A fun-themed open play where players come dressed in mismatched outfits and bring their “wrong” paddle, followed by competitive DUPR-rated games.",
+    "image": "thumb-wrong.jpg",
+    "link": "https://calapanpickleball.github.io/wrongevent/index2.html"
+  },
+  {
+    "date": "2026-10-24",
+    "tag": "Tournament",
+    "title": "2nd Team Tournament",
+    "venue": "PKL Box",
+    "desc": "CCPC’s second team-based tournament, bringing players together to compete, build chemistry, and battle for the championship.",
+    "image": "thumb-2nd.jpg",
+    "link": "https://calapanpickleball.github.io/teamtournament/index.html"
+  },
+  {
+    "date": "2026-11-05",
+    "tag": "Clinic",
+    "title": "Drills",
+    "venue": "TBA",
+    "desc": "A focused training session designed to improve fundamentals, technique, consistency, and game strategy through structured drills.",
+    "image": "thumb-tba.jpg",
+    "link": ""
+  },
+  {
+    "date": "2026-11-13",
+    "tag": "Tournament",
+    "title": "One Mindoro: Dual Meet",
+    "venue": "PKL Box",
+    "desc": "A friendly but competitive dual meet bringing together pickleball players from Oriental Mindoro and Occidental Mindoro in the spirit of sportsmanship and camaraderie.",
+    "image": "thumb-dual.jpg",
+    "link": "https://calapanpickleball.github.io/ccpc/one-mindoro-dual-meet.html"
+  },
+  {
+    "date": "2026-11-28",
+    "tag": "Open Play",
+    "title": "DUPR Open Play",
+    "venue": "Balai Mindoro",
+    "desc": "Competitive open play sessions where games are recorded for DUPR ratings, giving players an opportunity to test their skills and track their progress.",
+    "image": "thumb-tba.jpg",
+    "link": ""
+  },
+  {
+    "date": "2026-12-07",
+    "tag": "Fun Match",
+    "title": "CCPC Week",
+    "venue": "TBA",
+    "desc": "A week-long celebration of the Calapan City Pickleball Club featuring games, activities, community events, and opportunities for members to connect and play.",
+    "image": "thumb-tba.jpg",
+    "link": ""
+  },
+  {
+    "date": "2026-12-12",
+    "tag": "Fun Match",
+    "title": "Christmas Party",
+    "venue": "TBA",
+    "desc": "A festive celebration bringing the CCPC community together for good food, fun games, laughter, and a year-end celebration of friendship, sportsmanship, and memorable moments on and off the court.",
+    "image": "thumb-tba.jpg",
+    "link": ""
+  },
+  {
+    "date": "2026-08-16",
+    "tag": "Fun Match",
+    "title": "CCPC x MTC Dual Meet",
+    "venue": "SM Paloo 4Ecom Center",
+    "desc": "An exhibition match against the Morning Tickle Club.",
+    "image": "thumb-tba.jpg",
+    "link": "https://calapanpickleball.github.io/CCPCxMTC/dualmeet.html"
+  }
+]

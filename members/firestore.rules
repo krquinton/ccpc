@@ -1,0 +1,36 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signed() { return request.auth != null; }
+    function hasRole() { return signed() && exists(/databases/$(database)/documents/users/$(request.auth.uid)); }
+    function myRole() { return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role; }
+    // Super Admin = has role "superadmin" in the users collection, OR is your bootstrap email
+    function isSA() { return signed() && (request.auth.token.email == "YOUR_GMAIL@gmail.com" || (hasRole() && myRole() == "superadmin")); }
+    function isAdm() { return hasRole() && myRole() in ["superadmin", "admin"]; }
+
+    // Logins and roles
+    match /users/{uid} {
+      allow read: if signed() && (request.auth.uid == uid || isSA());
+      allow create: if signed() && request.auth.uid == uid && (request.resource.data.role == "pending" || isSA());
+      allow update, delete: if isSA();
+    }
+
+    // Approved members
+    match /members/{id} {
+      allow read: if hasRole() && myRole() in ["superadmin", "admin", "viewer"];
+      allow create, update, delete: if isAdm();
+    }
+
+    // Submitted from the club website's application form (anyone can submit)
+    match /membershipApplications/{id} {
+      allow create: if true;
+      allow read, update, delete: if isAdm();
+    }
+
+    // OTHER APPS: every other collection stays open, as before.
+    // The 3 protected collections above are excluded.
+    match /{col}/{doc=**} {
+      allow read, write: if !(col in ["users", "members", "membershipApplications"]);
+    }
+  }
+}

@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>CCPC TV</title>
+<link href="https://fonts.googleapis.com/css2?family=Krona+One&display=swap" rel="stylesheet">
+<style>
+:root{--y:#fab813;--o:#ff6600;--n:#083d5f;--b:#3992b9;--r:#bb1421}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0}
+body{font-family:system-ui,sans-serif;background:#fff;color:var(--n);display:flex;flex-direction:column;overflow:hidden}
+.k{font-family:'Krona One',system-ui,sans-serif;font-weight:400}
+header{background:var(--n);color:#fff;display:flex;justify-content:space-between;align-items:center;padding:1.2vh 2vw}
+header h1{margin:0;font-size:3vh}header em{color:var(--y);font-style:normal}
+#clk{font-size:5vh;text-align:right;line-height:1}#dt{font:400 1.8vh system-ui;color:#bcd0dc;margin-top:.5vh}
+.stats{display:grid;grid-template-columns:1.3fr 1.3fr repeat(5,1fr);gap:1vw;padding:1.5vh 2vw}
+.st{border-radius:1.2vh;color:#fff;padding:1.4vh 1.2vw}
+.st span{font-size:1.9vh;display:block}.st b{font:400 7vh 'Krona One',sans-serif;line-height:1.1}
+h2{margin:0;padding:0 2vw 1vh;font-size:2.4vh}
+#grid{flex:1;min-height:0;display:grid;gap:1vh 1vw;padding:0 2vw 2vh;align-content:stretch}
+.c{background:var(--y);color:var(--n);border-radius:1.2vh;display:flex;align-items:center;justify-content:center;text-align:center;padding:0 .8vw;overflow:hidden;white-space:nowrap;font-weight:800}
+#all{flex:1;display:none;align-items:center;justify-content:center;font-size:8vh;color:var(--b)}
+</style></head><body>
+<header><h1 class="k">CCPC: <em>Wrong Outfit, Wrong Paddle</em></h1><div><div id="clk" class="k"></div><div id="dt"></div></div></header>
+<div class="stats">
+ <div class="st" style="background:var(--n)"><span>Registered</span><b id="a">0</b></div>
+ <div class="st" style="background:var(--o)"><span>Still waiting</span><b id="w">0</b></div>
+ <div class="st" style="background:var(--r)"><span>Wrong Outfit</span><b id="o">0</b></div>
+ <div class="st" style="background:var(--r)"><span>Wrong Paddle</span><b id="p">0</b></div>
+ <div class="st" style="background:var(--b)"><span>Singles</span><b id="s">0</b></div>
+ <div class="st" style="background:var(--b)"><span>DUPR Low</span><b id="l">0</b></div>
+ <div class="st" style="background:var(--b)"><span>DUPR High</span><b id="h">0</b></div>
+</div>
+<h2 class="k" id="wt">Waiting to check in</h2>
+<div id="grid"></div><div id="all" class="k">Everyone is here!</div>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+<script>
+firebase.initializeApp({
+  apiKey:"AIzaSyB4IiCCQHtGeIT44n71oGlKk7PIOSWxfg8",authDomain:"ccpc-1943f.firebaseapp.com",
+  databaseURL:"https://ccpc-1943f-default-rtdb.firebaseio.com",projectId:"ccpc-1943f",
+  storageBucket:"ccpc-1943f.firebasestorage.app",messagingSenderId:"904942754236",appId:"1:904942754236:web:aecbec51d5cd0b745b33b9"});
+const $=id=>document.getElementById(id);let names=[];const wo=r=>r.wrongOutfit!=null?r.wrongOutfit===true:/both/i.test(r.program||''),wp=r=>r.wrongPaddle!=null?r.wrongPaddle===true:/both/i.test(r.program||''),inWP=r=>wo(r)||wp(r);
+const opCat=r=>{const j=(r.duprJoin||'').trim();if(j==='Oo'||!inWP(r))return r.duprCategory||'No category';return null};
+const ci=r=>r.checkedIn===true||r.paid===true;
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+setInterval(()=>{const d=new Date();$('clk').textContent=d.toLocaleTimeString([],{hour:'numeric',minute:'2-digit',second:'2-digit'});
+ $('dt').textContent=d.toLocaleDateString([],{weekday:'long',month:'long',day:'numeric'})},1000);
+firebase.database().ref('registrants').on('value',s=>{
+  const a=Object.values(s.val()||{}).filter(r=>r&&r.name),p=a.filter(ci),w=a.filter(r=>!ci(r));
+  const both=r=>/both/i.test(r.program||''),cat=c=>p.filter(r=>opCat(r)===c).length;
+  $('a').textContent=p.length;$('w').textContent=w.length;
+  $('o').textContent=p.filter(wo).length;$('p').textContent=p.filter(wp).length;
+  $('s').textContent=cat('Singles');$('l').textContent=cat('Low');$('h').textContent=cat('High');
+  names=w.map(r=>r.name.trim()).sort((x,y)=>x.localeCompare(y));draw();
+});
+function draw(){
+  const g=$('grid'),n=names.length;$('all').style.display=n?'none':'flex';g.style.display=n?'grid':'none';$('wt').style.display=n?'block':'none';
+  if(!n)return;
+  const W=g.clientWidth-2*0,H=g.clientHeight,gx=innerWidth*.01,gy=innerHeight*.01,L=Math.max(...names.map(x=>x.length),4);
+  let best={f:0,c:1};
+  for(let c=1;c<=n;c++){const r=Math.ceil(n/c),cw=(W-gx*(c-1))/c,ch=(H-gy*(r-1))/r,f=Math.min(ch*.5,cw/(L*.62));if(f>best.f)best={f,c}}
+  const r=Math.ceil(n/best.c);
+  g.style.gridTemplateColumns=`repeat(${best.c},1fr)`;g.style.gridTemplateRows=`repeat(${r},1fr)`;
+  g.innerHTML=names.map(x=>`<div class="c" style="font-size:${Math.min(best.f,innerHeight*.11)}px">${esc(x)}</div>`).join('');
+}
+addEventListener('resize',draw);
+</script></body></html>

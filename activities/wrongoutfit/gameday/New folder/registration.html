@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>CCPC Registration</title>
+<link href="https://fonts.googleapis.com/css2?family=Krona+One&display=swap" rel="stylesheet">
+<style>
+:root{--y:#fab813;--o:#ff6600;--n:#083d5f;--b:#3992b9;--r:#bb1421}
+*{box-sizing:border-box}
+body{margin:0;font-family:system-ui,sans-serif;color:var(--n);background:#fff;height:100vh;display:flex;flex-direction:column}
+h1,h2,.k{font-family:'Krona One',system-ui,sans-serif;font-weight:400}
+header{background:var(--n);color:#fff;padding:12px 20px;display:flex;justify-content:space-between;align-items:center;gap:12px}
+header h1{font-size:clamp(14px,2vw,22px);margin:0}header em{color:var(--y);font-style:normal}
+.stats{display:grid;grid-template-columns:repeat(6,1fr);gap:10px;padding:12px 20px}
+.st{border-radius:10px;padding:10px 14px;color:#fff;font-size:13px}
+.st b{display:block;font:400 clamp(20px,3vw,34px) 'Krona One',sans-serif}
+.cols{flex:1;min-height:0;display:grid;grid-template-columns:1fr 1fr;gap:14px;padding:0 20px 16px}
+.bk{border:3px solid;border-radius:12px;display:flex;flex-direction:column;min-height:0;overflow:hidden}
+.bk>div.h{padding:12px;display:flex;gap:8px;flex-wrap:wrap;align-items:center;color:#fff}
+.bk h2{font-size:16px;margin:0;flex:1 0 100%}
+.bk input[type=search]{flex:1;min-width:120px;padding:12px;border:0;border-radius:8px;font-size:16px}
+.list{overflow:auto;flex:1;padding:8px}
+.it{display:flex;align-items:center;gap:10px;padding:12px;border-bottom:1px solid #e3e9ee;font-size:18px}
+.it .nm{flex:1;min-width:0}.it small{display:block;color:#5a7385;font-size:13px}
+button{font:inherit;cursor:pointer;border:0;border-radius:8px;padding:12px 16px;font-weight:600;background:var(--n);color:#fff}
+.go{background:var(--y);color:var(--n)}.ghost{background:#e8eef2;color:var(--n)}.red{background:var(--r)}
+.empty{padding:24px;text-align:center;color:#5a7385}
+dialog{border:0;border-radius:14px;padding:0;width:min(560px,94vw);color:var(--n)}
+dialog::backdrop{background:rgba(8,61,95,.6)}
+form{padding:20px;display:grid;gap:12px}
+label{display:grid;gap:4px;font-size:13px;font-weight:600}
+input,select{font:inherit;font-size:17px;padding:12px;border:2px solid #c6d3dc;border-radius:8px;color:var(--n)}
+.row{display:flex;gap:10px;justify-content:flex-end;flex-wrap:wrap}
+#err{display:none;background:var(--r);color:#fff;padding:10px 20px;font-weight:700}
+.pr{display:flex;gap:8px;flex-wrap:wrap}.pr label{flex:1 0 45%;display:flex;gap:8px;align-items:center;border:2px solid #c6d3dc;border-radius:8px;padding:10px;font-size:15px}
+#toast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);background:var(--n);color:#fff;padding:12px 20px;border-radius:10px;display:none}
+@media(max-width:760px){body{height:auto}.cols{grid-template-columns:1fr}.bk{max-height:70vh}.stats{grid-template-columns:1fr 1fr}}
+</style></head><body>
+<header><h1>CCPC: <em>Wrong Outfit, Wrong Paddle</em> &middot; Registration</h1><div class="k" id="clk"></div></header>
+<div id="err"></div>
+<div class="stats">
+ <div class="st" style="background:var(--n)">Checked in<b id="sC">0</b></div>
+ <div class="st" style="background:var(--o)">Still waiting<b id="sW">0</b></div>
+ <div class="st" style="background:var(--b)">Walk-ins<b id="sK">0</b></div>
+ <div class="st" style="background:#0a7a3d">Cash<b id="sM">₱0</b></div>
+ <div class="st" style="background:#1d6fd1">GCash<b id="sG">₱0</b></div>
+ <div class="st" style="background:var(--r)">For payment<b id="sP">0</b></div>
+</div>
+<div class="cols">
+ <section class="bk" style="border-color:var(--o)">
+  <div class="h" style="background:var(--o)"><h2>Check in</h2>
+   <input type="search" id="q1" placeholder="Search name..." autocomplete="off">
+   <button class="go" id="newBtn">+ New guest</button></div>
+  <div class="list" id="L1"></div>
+ </section>
+ <section class="bk" style="border-color:var(--n)">
+  <div class="h" style="background:var(--n)"><h2>Checked in</h2>
+   <input type="search" id="q2" placeholder="Search name..." autocomplete="off"></div>
+  <div class="list" id="L2"></div>
+ </section>
+</div>
+
+<dialog id="dlg"><form id="f" method="dialog">
+ <h2 id="ft" style="margin:0;font-size:18px"></h2>
+ <label>Name<input id="fn" required autocomplete="off"></label>
+ <div style="font-size:13px;font-weight:600">Joining (Open Play is set by DUPR below)</div><div style="display:flex;gap:16px;flex-wrap:wrap"><label style="display:flex;flex-direction:row;gap:8px;align-items:center;font-size:16px"><input type="checkbox" id="fwo" style="width:22px;height:22px">Wrong Outfit</label><label style="display:flex;flex-direction:row;gap:8px;align-items:center;font-size:16px"><input type="checkbox" id="fwp" style="width:22px;height:22px">Wrong Paddle</label></div>
+ <label>Joining DUPR Open Play?<select id="fj"><option value="Oo">Yes</option><option value="Hindi">No</option><option value="">Blank (not answered)</option></select></label>
+ <label id="cw">DUPR category<select id="fc"><option value="">Select...</option><option>Singles</option><option>Low</option><option>High</option></select></label>
+ <label id="ow">Wrong Outfit: costume<input id="fo" autocomplete="off"></label>
+ <label id="pw">Wrong Paddle: paddle<input id="fd" autocomplete="off"></label>
+ <div style="font-size:13px;font-weight:600">Payment (₱200)</div>
+ <div class="pr"><label><input type="radio" name="pay" value="pending">For payment</label><label><input type="radio" name="pay" value="cash">Paid (cash)</label><label><input type="radio" name="pay" value="gcash">GCash</label><label><input type="radio" name="pay" value="waived">Waived</label></div>
+ <div class="row"><button type="button" class="ghost" id="cx">Cancel</button><button class="go" id="ok"></button></div>
+</form></dialog>
+<div id="toast"></div>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+<script>
+firebase.initializeApp({
+  apiKey:"AIzaSyB4IiCCQHtGeIT44n71oGlKk7PIOSWxfg8",authDomain:"ccpc-1943f.firebaseapp.com",
+  databaseURL:"https://ccpc-1943f-default-rtdb.firebaseio.com",projectId:"ccpc-1943f",
+  storageBucket:"ccpc-1943f.firebasestorage.app",messagingSenderId:"904942754236",appId:"1:904942754236:web:aecbec51d5cd0b745b33b9"});
+const ref=firebase.database().ref('registrants'),FEE=200,$=id=>document.getElementById(id);
+let R={},mode=null,editId=null;
+ref.on('value',s=>{R=s.val()||{};render()},e=>{$('err').textContent='Cannot read data: '+e.message;$('err').style.display='block'});
+const all=()=>Object.entries(R).map(([id,v])=>({id,...v})).filter(r=>r&&r.name);
+const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const ci=r=>r.checkedIn===true||r.paid===true,pay=r=>r.payment||(r.paid===true?'cash':'pending');
+const PL={pending:'For payment',cash:'Paid (cash)',gcash:'GCash',waived:'Waived'},PC={pending:'#bb1421',cash:'#0a7a3d',gcash:'#1d6fd1',waived:'#5a7385'};
+const wo=r=>r.wrongOutfit!=null?r.wrongOutfit===true:/both/i.test(r.program||''),wp=r=>r.wrongPaddle!=null?r.wrongPaddle===true:/both/i.test(r.program||''),inWP=r=>wo(r)||wp(r);
+const opCat=r=>{const j=(r.duprJoin||'').trim();if(j==='Oo'||!inWP(r))return ['Singles','Low','High'].includes(r.duprCategory)?r.duprCategory:'No category';return null};
+const isBoth=r=>/both/i.test(r.program||'');
+const tm=t=>t?new Date(t).toLocaleTimeString([],{hour:'numeric',minute:'2-digit'}):'';
+const info=r=>[inWP(r)?[wo(r)?'Wrong Outfit':'',wp(r)?'Wrong Paddle':''].filter(Boolean).join(' + '):'Open Play only',opCat(r)?(opCat(r)==='No category'?'DUPR category missing':'DUPR '+opCat(r)):(inWP(r)?'No Open Play':'No activity')].join(' • ');
+function toast(m){const t=$('toast');t.textContent=m;t.style.display='block';setTimeout(()=>t.style.display='none',2600)}
+setInterval(()=>$('clk').textContent=new Date().toLocaleTimeString([],{hour:'numeric',minute:'2-digit',second:'2-digit'}),1000);
+
+function render(){
+  const a=all(),c=a.filter(ci),w=a.filter(r=>!ci(r)),n=k=>c.filter(r=>pay(r)===k).length;
+  $('sC').textContent=c.length;$('sW').textContent=w.length;$('sK').textContent=c.filter(r=>r.walkIn).length;
+  $('sM').textContent='₱'+(n('cash')*FEE).toLocaleString();$('sG').textContent='₱'+(n('gcash')*FEE).toLocaleString();$('sP').textContent=n('pending');
+  const f=(q,l)=>l.filter(r=>r.name.toLowerCase().includes(q.trim().toLowerCase()));
+  w.sort((x,y)=>x.name.localeCompare(y.name));c.sort((x,y)=>(y.checkedInAt||y.paidAt||0)-(x.checkedInAt||x.paidAt||0));
+  const A=f($('q1').value,w),B=f($('q2').value,c);
+  $('L1').innerHTML=A.map(r=>`<div class="it"><div class="nm">${esc(r.name)}<small>${info(r)}</small></div><button class="go" data-a="chk" data-id="${r.id}">Check in</button></div>`).join('')||'<div class="empty">No one waiting.</div>';
+  $('L2').innerHTML=B.map(r=>`<div class="it"><div class="nm">${esc(r.name)}<small>${info(r)}${r.wrongOutfitFinal?' • '+esc(r.wrongOutfitFinal):''}${r.paddle?' • '+esc(r.paddle):''}<br>Checked in ${tm(r.checkedInAt||r.paidAt)}${r.undoAt?' (undone before at '+tm(r.undoAt)+')':''}</small></div><select data-a="pay" data-id="${r.id}" style="background:${PC[pay(r)]};color:#fff;font-weight:700;padding:8px">${Object.keys(PL).map(k=>`<option value="${k}"${pay(r)===k?' selected':''}>${PL[k]}</option>`).join('')}</select><button class="ghost" data-a="edit" data-id="${r.id}">Edit</button><button class="red" data-a="undo" data-id="${r.id}">Undo</button></div>`).join('')||'<div class="empty">No one checked in yet.</div>';
+}
+$('q1').oninput=$('q2').oninput=render;
+const fail=e=>{$('err').textContent='Could not save: '+e.message+' (check Firebase rules for registrants)';$('err').style.display='block'};
+document.body.addEventListener('click',e=>{
+  const b=e.target.closest('button[data-a]');if(!b)return;const r=R[b.dataset.id];editId=b.dataset.id;
+  if(b.dataset.a==='chk')open('confirm',r);
+  if(b.dataset.a==='edit')open('edit',r);
+  if(b.dataset.a==='undo'&&confirm('Move '+r.name+' back to Check in?'))
+    ref.child(editId).update({checkedIn:false,checkedInAt:null,paid:null,paidAt:null,status:null,payment:'pending',undoAt:Date.now()}).then(()=>toast('Moved back to Check in')).catch(fail);
+});
+document.body.addEventListener('change',e=>{
+  const s=e.target.closest('select[data-a="pay"]');if(!s)return;
+  ref.child(s.dataset.id).update({payment:s.value,paid:null,paidAt:s.value==='pending'?null:Date.now()}).then(()=>toast('Payment updated')).catch(fail);
+});
+$('newBtn').onclick=()=>{editId=null;open('new',{})};
+function open(m,r){
+  mode=m;$('ft').textContent=m==='new'?'New guest':m==='edit'?'Edit details':'Confirm and check in';
+  $('ok').textContent=m==='edit'?'Save changes':'Check in';
+  $('fn').value=r.name||'';$('fwo').checked=wo(r);$('fwp').checked=wp(r);
+  $('fj').value=(r.duprJoin==='Oo'||r.duprJoin==='Hindi')?r.duprJoin:(m==='new'?'Oo':'');$('fc').value=r.duprCategory||'';
+  $('fo').value=r.wrongOutfitFinal||'';$('fd').value=r.paddle||'';
+  document.querySelector('input[name=pay][value='+(m==='edit'?pay(r):'pending')+']').checked=true;
+  sync();$('dlg').showModal();$('fn').focus();
+}
+function sync(){const a=$('fwo').checked,b=$('fwp').checked;$('ow').style.display=a?'grid':'none';$('pw').style.display=b?'grid':'none';$('cw').style.display=($('fj').value==='Oo'||!(a||b))?'grid':'none';}
+$('fwo').onchange=$('fwp').onchange=$('fj').onchange=sync;$('cx').onclick=()=>$('dlg').close();
+$('f').onsubmit=e=>{
+  e.preventDefault();const A=$('fwo').checked,B=$('fwp').checked,both=A||B,join=$('fj').value,py=document.querySelector('input[name=pay]:checked').value,op=join==='Oo'||!both;
+  const d={name:$('fn').value.trim(),program:A&&B?'Both, sige na nga':!A&&!B?'Open Play lang, seryoso akong tao':A?'Wrong Outfit only':'Wrong Paddle only',wrongOutfit:A,wrongPaddle:B,duprJoin:join,duprCategory:op?$('fc').value:(editId&&R[editId]?R[editId].duprCategory||'':''),
+    wrongOutfitFinal:A?$('fo').value.trim():'',paddle:B?$('fd').value.trim():'',payment:py,paid:null};
+  if(!d.name)return;
+  if(op&&!d.duprCategory){toast('Select a DUPR category');return}
+  if((A&&!d.wrongOutfitFinal)||(B&&!d.paddle)){toast('Enter the costume and/or paddle');return}
+  const old=mode==='edit'?pay(R[editId]):'pending';
+  if(py!=='pending'&&py!==old)d.paidAt=Date.now();if(py==='pending')d.paidAt=null;
+  if(mode!=='edit'){d.checkedIn=true;d.checkedInAt=Date.now();d.status='confirmed'}
+  const done=()=>{$('dlg').close();toast(mode==='edit'?'Saved':'Checked in: '+d.name)};
+  if(mode==='new'){d.walkIn=true;d.createdAt=Date.now();ref.push(d).then(done).catch(fail)}
+  else ref.child(editId).update(d).then(done).catch(fail);
+};
+</script></body></html>

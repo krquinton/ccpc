@@ -1,0 +1,20 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signed() { return request.auth != null; }
+    function isSA() { return signed() && request.auth.token.email == "YOUR_GMAIL@gmail.com"; }
+    function myRole() { return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role; }
+    function hasRole() { return signed() && exists(/databases/$(database)/documents/users/$(request.auth.uid)); }
+
+    match /users/{uid} {
+      allow read: if signed() && (request.auth.uid == uid || isSA());
+      allow create: if signed() && request.auth.uid == uid && (request.resource.data.role == "pending" || isSA());
+      allow update, delete: if isSA();
+    }
+    match /members/{id} {
+      allow read: if hasRole() && myRole() in ["superadmin", "admin", "viewer"];
+      allow create: if request.resource.data.status == "Pending" || (hasRole() && myRole() in ["superadmin", "admin"]);
+      allow update, delete: if hasRole() && myRole() in ["superadmin", "admin"];
+    }
+  }
+}
