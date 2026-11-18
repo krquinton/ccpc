@@ -37,9 +37,7 @@
   .tabs{display:flex;gap:6px;margin-top:16px;}
   .tab{padding:8px 18px;border-radius:10px;font:600 14px 'Inter',sans-serif;text-decoration:none;color:var(--ink);background:var(--card);border:1px solid var(--line);}
   .tab.on{background:var(--green);border-color:var(--green);color:#fff;}
-  .events{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px;}
-  .ev{border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:20px;padding:6px 14px;font:600 13px 'Inter',sans-serif;cursor:pointer;}
-  .ev[aria-pressed="true"]{background:var(--dark);color:#fff;border-color:var(--dark);}
+  .note{margin-top:12px;background:#fff1dc;color:#b86a00;border-radius:10px;padding:9px 14px;font-size:13px;font-weight:600;}
 
   .tools{position:sticky;top:0;z-index:20;background:var(--bg);padding:12px 0 10px;margin-top:6px;}
   .search{position:relative;}
@@ -101,7 +99,7 @@
 
 <div class="wrap">
   <nav class="tabs" aria-label="Pages"><a class="tab" id="tabSched" href="schedule.html">Schedule</a><a class="tab on" href="scoreboard.html" aria-current="page">Scoreboard</a></nav>
-  <div class="events" id="events" hidden></div>
+  <div class="note" id="note" hidden>That link was for an earlier session. Showing today’s scoreboard instead.</div>
   <div class="tools" id="tools" hidden>
     <div class="search" id="searchBox">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
@@ -161,29 +159,41 @@
     setLive(false, 'Offline'); $('evSub').textContent = '';
     $('board').innerHTML = `<div class="empty"><b>The scoreboard isn’t available right now</b>${err && err.code === 'permission-denied' ? 'It hasn’t been published yet.' : 'Check your connection and try again.'}</div>`;
   }
-  async function init(){
-    try {
-      const snap = await db.collection('pkl-public-schedules').orderBy('updatedAtMs', 'desc').limit(30).get();
-      events = snap.docs.map(d => ({ id:d.id, title:(d.data().eventName || 'Event'), date:d.data().dateText || '' }));
-    } catch (err) { events = []; if (!urlId) return fail(err); }
-    if (!events.length && !urlId){ setLive(false, 'Not published yet'); $('evSub').textContent = ''; $('board').innerHTML = '<div class="empty"><b>No scoreboard has been published yet</b>Check back soon.</div>'; return; }
-    renderEvents(); open(urlId || events[0].id);
+  /* The current session only (same rules as the schedule page):
+     1) the live queue's session (pkl-queue-session/state), when this page is allowed to read it;
+     2) otherwise the schedule the scheduler marked isCurrent when it last published.
+     Past or other sessions are never shown, even with an old ?e= link. */
+  let unsubCur = null, unsubM = null, noticeShown = false;
+  function waiting(){
+    setLive(false, 'Waiting for results'); $('tools').hidden = true; $('legend').hidden = true; $('upd').textContent = '';
+    $('board').innerHTML = '<div class="empty"><b>No scoreboard for today’s session yet</b>Check back soon. This page updates on its own.</div>';
   }
-  function renderEvents(){
-    const box = $('events'); if (events.length < 2){ box.hidden = true; return; }
-    box.hidden = false;
-    box.innerHTML = events.map(e => `<button class="ev" data-id="${esc(e.id)}" aria-pressed="${e.id === curId}">${esc(e.title)}${e.date ? ' · ' + esc(e.date) : ''}</button>`).join('');
+  function useCurrent(id){
+    if (!id){ unsubs.forEach(u => u()); unsubs = []; curId = null; sched = null; board = null; $('evSub').textContent = ''; return waiting(); }
+    if (urlId && urlId !== id && !noticeShown){ noticeShown = true; $('note').hidden = false; }
+    if (id !== curId) open(id);
   }
-  $('events').addEventListener('click', e => { const b = e.target.closest('.ev'); if (b) open(b.dataset.id); });
+  function watchMarked(){
+    if (unsubM) return;
+    unsubM = db.collection('pkl-public-schedules').where('isCurrent', '==', true).onSnapshot(snap => {
+      const docs = snap.docs.slice().sort((a, b) => (b.data().updatedAtMs || 0) - (a.data().updatedAtMs || 0));
+      useCurrent(docs.length ? docs[0].id : null);
+    }, fail);
+  }
+  function init(){
+    try { if (location.search) history.replaceState(null, '', location.pathname); } catch(e){}  // keep the link clean
+    unsubCur = db.collection('pkl-queue-session').doc('state').onSnapshot(s => {
+      const id = s.exists ? (s.data().currentSessionId || null) : null;
+      if (id){ if (unsubM){ unsubM(); unsubM = null; } useCurrent(id); } else watchMarked();
+    }, () => watchMarked());
+  }
 
   function open(id){
     unsubs.forEach(u => u()); unsubs = [];
-    curId = id; sched = null; board = null; status = {}; selCats.clear(); renderEvents();
-    $('tabSched').href = 'schedule.html?e=' + encodeURIComponent(id);
-    try { history.replaceState(null, '', '?e=' + encodeURIComponent(id)); } catch(e){}
+    curId = id; sched = null; board = null; status = {}; selCats.clear();
     unsubs.push(db.collection('pkl-public-schedules').doc(id).onSnapshot(s => {
-      if (!s.exists){ sched = null; $('tools').hidden = true; $('board').innerHTML = '<div class="empty"><b>This scoreboard isn’t published</b>Check the link or ask the organizers.</div>'; setLive(false, 'Not found'); return; }
-      sched = s.data(); setLive(true, 'Live'); render();
+      sched = s.exists ? s.data() : null;   // the live scores still show without a published schedule
+      render();
     }, fail));
     unsubs.push(db.collection('pkl-public-board').doc(id).onSnapshot(s => { board = s.exists ? s.data() : null; render(); }, () => {}));
     unsubs.push(db.collection('pkl-public-status').doc(id).onSnapshot(s => { status = s.exists ? (s.data().games || {}) : {}; render(); }, () => {}));
@@ -202,11 +212,13 @@
     return { done, total: gs.length };
   }
   function render(){
-    if (!sched) return;
-    document.title = (sched.eventName || 'Scoreboard') + ' · Scoreboard';
-    $('evTitle').textContent = sched.eventName || 'Scoreboard';
-    $('brandImg').src = sched.logo || DEFAULT_LOGO;
-    $('evSub').textContent = [sched.dateText, sched.venue].filter(Boolean).join(' · ');
+    if (!sched && !board) return waiting();
+    setLive(true, 'Live');
+    const info = sched || board || {};
+    document.title = (info.eventName || 'Scoreboard') + ' · Scoreboard';
+    $('evTitle').textContent = info.eventName || 'Scoreboard';
+    $('brandImg').src = info.logo || DEFAULT_LOGO;
+    $('evSub').textContent = [info.dateText, info.venue].filter(Boolean).join(' · ');
     const all = groups();
     $('tools').hidden = !all.length; $('legend').hidden = !all.length;
     [...selCats].forEach(c => { if (!all.some(g => g.name === c)) selCats.delete(c); });
@@ -225,7 +237,7 @@
         ${pg ? `<div class="prog" aria-hidden="true"><i style="width:${Math.round(pg.done / pg.total * 100)}%"></i></div>` : ''}
         ${g.view.length ? `<table><thead><tr><th>#</th><th class="nm">${esc(g.kind)}</th><th class="hide-s">GP</th><th>W</th><th>L</th><th class="hide-s">PF</th><th>+/-</th></tr></thead><tbody>${body}</tbody></table>` : '<div class="none">Standings will show after the first game is finished.</div>'}</section>`;
     }).join('') + '</div>';
-    const when = (board && board.updatedAtMs) || sched.updatedAtMs;
+    const when = (board && board.updatedAtMs) || (sched && sched.updatedAtMs);
     $('upd').textContent = when ? 'Updated ' + new Date(when).toLocaleString([], { month:'short', day:'numeric', hour:'numeric', minute:'2-digit' }) + '.' : '';
   }
 

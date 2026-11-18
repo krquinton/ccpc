@@ -41,9 +41,7 @@
   .tabs{display:flex;gap:6px;margin-top:16px;}
   .tab{padding:8px 18px;border-radius:10px;font:600 14px 'Inter',sans-serif;text-decoration:none;color:var(--ink);background:var(--card);border:1px solid var(--line);}
   .tab.on{background:var(--green);border-color:var(--green);color:#fff;}
-  .events{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px;}
-  .ev{border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:20px;padding:6px 14px;font:600 13px 'Inter',sans-serif;cursor:pointer;}
-  .ev[aria-pressed="true"]{background:var(--dark);color:#fff;border-color:var(--dark);}
+  .note{margin-top:14px;background:var(--amber-soft);color:var(--amber);border-radius:10px;padding:9px 14px;font-size:13px;font-weight:600;}
 
   .tools{position:sticky;top:0;z-index:20;background:var(--bg);padding:12px 0 10px;margin-top:6px;}
   .search{position:relative;}
@@ -120,7 +118,7 @@
 
 <div class="wrap">
   <nav class="tabs" aria-label="Pages"><a class="tab on" href="schedule.html" aria-current="page">Schedule</a><a class="tab" id="tabBoard" href="scoreboard.html">Scoreboard</a></nav>
-  <div class="events" id="events" hidden></div>
+  <div class="note" id="note" hidden>That link was for an earlier session. Showing today’s schedule instead.</div>
   <div class="stats" id="stats"></div>
   <div class="tools" id="tools" hidden>
     <div class="search" id="searchBox">
@@ -180,17 +178,31 @@
     return s.split(/([A-Za-z0-9\u00C0-\u024F]+)/).map((p, i) => (i % 2 && toks.some(q => tokMatch(q, fold(p)))) ? `<mark>${esc(p)}</mark>` : esc(p)).join('');
   }
 
-  /* ---------- load ---------- */
+  /* ---------- load: the current session only ----------
+     1) The live queue's session (pkl-queue-session/state), when this page is allowed to read it.
+     2) Otherwise the schedule the scheduler marked isCurrent when it last published.
+     Schedules from past or other sessions are never shown, even with an old ?e= link. */
   const urlId = new URLSearchParams(location.search).get('e');
+  let unsubCur = null, noticeShown = false;
   function setLive(ok, txt){ $('liveDot').classList.toggle('off', !ok); $('liveTxt').textContent = txt; }
-  async function init(){
-    try {
-      const snap = await db.collection('pkl-public-schedules').orderBy('updatedAtMs', 'desc').limit(30).get();
-      events = snap.docs.map(d => ({ id:d.id, title:(d.data().eventName || 'Event'), date:d.data().dateText || '' }));
-    } catch (err) { events = []; if (!urlId) return fail(err); }
-    if (!events.length && !urlId) return emptyAll();
-    renderEvents();
-    open(urlId || events[0].id);
+  function useCurrent(id){
+    if (!id){ if (unsubS) unsubS(); if (unsubT) unsubT(); unsubS = unsubT = null; curId = null; sched = null; return emptyAll(); }
+    if (urlId && urlId !== id && !noticeShown){ noticeShown = true; $('note').hidden = false; }
+    if (id !== curId) open(id);
+  }
+  let unsubM = null;
+  function watchMarked(){
+    if (unsubM) return;
+    unsubM = db.collection('pkl-public-schedules').where('isCurrent', '==', true).onSnapshot(snap => {
+      const docs = snap.docs.slice().sort((a, b) => (b.data().updatedAtMs || 0) - (a.data().updatedAtMs || 0));
+      useCurrent(docs.length ? docs[0].id : null);
+    }, fail);
+  }
+  function init(){
+    unsubCur = db.collection('pkl-queue-session').doc('state').onSnapshot(s => {
+      const id = s.exists ? (s.data().currentSessionId || null) : null;
+      if (id){ if (unsubM){ unsubM(); unsubM = null; } useCurrent(id); } else watchMarked();
+    }, () => watchMarked());
   }
   function fail(err){
     setLive(false, 'Offline');
@@ -198,24 +210,16 @@
     $('table').innerHTML = `<div class="empty"><b>The schedule isn’t available right now</b>${err && err.code === 'permission-denied' ? 'It hasn’t been published yet.' : 'Check your connection and try again.'}</div>`;
   }
   function emptyAll(){
-    setLive(false, 'No schedule yet'); $('evSub').textContent = '';
-    $('table').innerHTML = '<div class="empty"><b>No schedule has been published yet</b>Check back soon.</div>';
+    setLive(false, 'No schedule yet'); $('evSub').textContent = ''; $('tools').hidden = true; $('stats').innerHTML = ''; $('upd').textContent = '';
+    $('table').innerHTML = '<div class="empty"><b>No schedule for today’s session yet</b>Check back soon.</div>';
   }
-  function renderEvents(){
-    const box = $('events');
-    if (events.length < 2){ box.hidden = true; return; }
-    box.hidden = false;
-    box.innerHTML = events.map(e => `<button class="ev" data-id="${esc(e.id)}" aria-pressed="${e.id === curId}">${esc(e.title)}${e.date ? ' · ' + esc(e.date) : ''}</button>`).join('');
-  }
-  $('events').addEventListener('click', e => { const b = e.target.closest('.ev'); if (b) open(b.dataset.id); });
 
   function open(id){
     if (unsubS) unsubS(); if (unsubT) unsubT();
-    curId = id; sched = null; status = {}; selCats.clear(); renderEvents();
-    $('tabBoard').href = 'scoreboard.html?e=' + encodeURIComponent(id);
-    try { history.replaceState(null, '', '?e=' + encodeURIComponent(id)); } catch(e){}
+    curId = id; sched = null; status = {}; selCats.clear();
+    try { if (location.search) history.replaceState(null, '', location.pathname); } catch(e){}  // always the current session: keep the link clean
     unsubS = db.collection('pkl-public-schedules').doc(id).onSnapshot(s => {
-      if (!s.exists){ sched = null; $('tools').hidden = true; $('stats').innerHTML = ''; $('table').innerHTML = '<div class="empty"><b>This schedule isn’t published</b>Check the link or ask the organizers.</div>'; setLive(false, 'Not found'); return; }
+      if (!s.exists){ sched = null; $('tools').hidden = true; $('stats').innerHTML = ''; $('table').innerHTML = '<div class="empty"><b>No schedule for today’s session yet</b>Check back soon. This page updates on its own.</div>'; $('upd').textContent = ''; setLive(false, 'Waiting for schedule'); return; }
       sched = s.data(); setLive(true, 'Live'); render();
     }, fail);
     unsubT = db.collection('pkl-public-status').doc(id).onSnapshot(s => { status = s.exists ? (s.data().games || {}) : {}; render(); }, () => {});
