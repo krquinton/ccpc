@@ -101,6 +101,16 @@ header.top .logo{position:absolute;left:1.5vw;top:8px;height:clamp(34px,7vh,70px
 .lb-stat b{color:var(--t);font-size:1.25em}
 .lb-empty{flex:1;display:flex;align-items:center;justify-content:center;color:var(--m);font:700 min(4vh,2.2vw) 'Baloo 2',sans-serif}
 
+/* static image (admin: "Show Image") — covers courts and popups until hidden; sponsors play on top of it */
+#imgOv{position:fixed;inset:0;z-index:94;background:#000;display:none;align-items:center;justify-content:center}
+#imgOv.show{display:flex}
+#imgOv img{max-width:100%;max-height:100%;object-fit:contain;display:block}
+
+/* sponsor showcase (admin: "Show Sponsors") — covers everything, popups included, until it finishes */
+#spOv{position:fixed;inset:0;z-index:95;background:#000;display:none}
+#spOv.show{display:block}
+#spOv iframe{width:100%;height:100%;border:0;display:block}
+
 /* theme switch */
 .tg{position:fixed;right:8px;top:8px;width:40px;height:22px;background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.3);border-radius:14px;cursor:pointer;z-index:90;opacity:.6}
 .tg .kn{position:absolute;top:2px;left:2px;width:16px;height:16px;border-radius:50%;background:#6cc144;transition:transform .2s;font-size:9px;display:flex;align-items:center;justify-content:center}
@@ -119,6 +129,8 @@ html[data-theme="light"] .tg .kn{transform:translateX(18px);background:#3992b9}
 <div id="o"></div>
 <div class="tg" id="tg" title="Light / dark"><div class="kn" id="tk">🌙</div></div>
 
+<div id="imgOv"><img id="imgTv" alt=""></div>
+<div id="spOv"></div>
 <div class="ov lb" id="lbOv"><div class="lb-title">🏆 Leaderboard</div><div class="lb-sub" id="lbSub"></div><div class="lb-cols" id="lbCols"></div></div>
 <div class="ov" id="callOv"><div class="pop"><div class="k">📣 Calling players</div><div class="cb" id="callCourt"></div><div class="tb2" id="callTeams"></div></div></div>
 <div class="ov" id="winOv"><div class="pop"><div class="k">🏆 Match result</div><div class="cb" id="winCourt"></div><div class="tb2" id="winTeams"></div><div class="sb" id="winScore"></div><div class="wn" id="winName"></div></div></div>
@@ -169,7 +181,7 @@ db.collection('pkl-queue-session').doc('state').onSnapshot(doc => {
 /* The admin app publishes the meet score (and the show-queue / leaderboard switches) here */
 db.collection('pkl-queue-events').doc('displaySettings').onSnapshot(doc => {
   ds = doc.exists ? doc.data() : {};
-  R(); renderLB();
+  R(); renderLB(); renderSponsors(); renderImage();
 }, err => console.error(err));
 
 /* ================= render ================= */
@@ -255,6 +267,46 @@ function renderLB(){
     : '<div class="lb-empty">No results yet</div>'}</div>`).join('');
   ov.classList.add('show');
 }
+
+/* ================= static image (admin: "Show Image") ================= */
+let tvImg = null;
+db.collection('pkl-queue-events').doc('tvImage').onSnapshot(d => { tvImg = d.exists ? d.data() : null; renderImage(); }, err => console.error(err));
+function renderImage(){
+  const s = ds.tvImage || {}, ov = $('#imgOv'), im = $('#imgTv');
+  const on = !!(s.show && tvImg && tvImg.url);
+  if (on && im.getAttribute('src') !== tvImg.url) im.src = tvImg.url;
+  ov.classList.toggle('show', on);
+}
+
+/* ================= sponsor showcase (admin: "Show Sponsors") =================
+   Plays tvurl.html once over everything, then hides itself and tells the admin it's done. */
+const SP_DONE_KEY = 'pkl-tv-sponsor-done';
+let spPlaying = 0;
+function stopSponsors(){ spPlaying = 0; const ov = $('#spOv'); ov.classList.remove('show'); ov.innerHTML = ''; }
+function renderSponsors(){
+  const s = ds.sponsorShow || {}, id = Number(s.playId) || 0;
+  if (!s.show || !id) { if (spPlaying) stopSponsors(); return; }
+  if (id === spPlaying) return;
+  if (String(id) === localStorage.getItem(SP_DONE_KEY)) return;   // this TV already played it (e.g. page was reloaded)
+  if (Date.now() - id > 30 * 60 * 1000) return;                     // left on from long ago
+  spPlaying = id;
+  const ov = $('#spOv'), f = document.createElement('iframe');
+  f.src = 'tvurl.html?once=1&t=' + id; f.allow = 'autoplay; fullscreen';
+  ov.innerHTML = ''; ov.appendChild(f); ov.classList.add('show');
+}
+addEventListener('message', e => {
+  const f = document.querySelector('#spOv iframe');
+  if (!f || e.source !== f.contentWindow || !e.data || e.data.type !== 'sponsorShowDone') return;
+  const id = spPlaying; if (!id) return;
+  try { localStorage.setItem(SP_DONE_KEY, String(id)); } catch (err) {}
+  stopSponsors();
+  /* flip the admin button back to "Show Sponsors" (only if no newer showcase was started) */
+  const ref = db.collection('pkl-queue-events').doc('displaySettings');
+  db.runTransaction(async t => {
+    const d = await t.get(ref), cur = ((d.exists && d.data()) || {}).sponsorShow || {};
+    if (cur.show && Number(cur.playId) === id) t.set(ref, { sponsorShow: { show: false, playId: id } }, { merge: true });
+  }).catch(err => console.warn('Could not reset Show Sponsors:', err.message));
+});
 
 /* ================= call / winner popups ================= */
 let evReady = false, lastEv = null;
