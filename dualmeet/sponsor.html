@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sponsor Manager</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Montserrat:wght@700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#f4f6f9; --card:#fff; --ink:#0f1c2e; --muted:#5d6b7e; --line:#e2e7ee;
+    --navy:#0b1e3a; --ball:#d4f22c; --ball-ink:#3a4500; --danger:#c0362c;
+    --major:#0b1e3a; --minor:#2a7f86; --special:#8a6d1a;
+    --r:12px;
+  }
+  *{box-sizing:border-box}
+  [hidden]{display:none!important}
+  body{margin:0;font-family:Inter,system-ui,sans-serif;background:var(--bg);color:var(--ink);font-size:15px;line-height:1.45}
+  header{background:var(--navy);color:#fff;padding:16px 24px;display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+  .brand{display:flex;align-items:center;gap:12px;font-family:Montserrat,sans-serif;font-weight:800;font-size:19px;letter-spacing:.2px}
+  .ball-dot{width:22px;height:22px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#f6ffa8,var(--ball) 50%,#9cb80c);box-shadow:0 0 0 3px rgba(212,242,44,.18)}
+  .mode{font-size:12px;font-weight:600;padding:4px 10px;border-radius:999px;background:rgba(255,255,255,.12)}
+  .mode.live{background:rgba(212,242,44,.18);color:var(--ball)}
+  .mode.local{background:rgba(255,180,80,.18);color:#ffc879}
+  header .spacer{flex:1}
+  .btn{font:inherit;font-weight:600;border:1px solid var(--line);background:#fff;color:var(--ink);padding:9px 14px;border-radius:9px;cursor:pointer;display:inline-flex;align-items:center;gap:6px;text-decoration:none;transition:background .15s,border-color .15s}
+  .btn:hover{background:#f0f3f7}
+  .btn:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible,.seg label:focus-within{outline:3px solid rgba(42,127,134,.45);outline-offset:2px}
+  .btn.primary{background:var(--navy);border-color:var(--navy);color:#fff}
+  .btn.primary:hover{background:#13305a}
+  .btn.accent{background:var(--ball);border-color:var(--ball);color:var(--ball-ink)}
+  .btn.accent:hover{background:#c6e41f}
+  .btn.ghost{background:transparent;border-color:transparent}
+  .btn.ghost:hover{background:#eef1f5}
+  .btn.danger{color:var(--danger)}
+  .btn.sm{padding:6px 10px;font-size:13px}
+  .btn:disabled{opacity:.45;cursor:not-allowed}
+  main{max-width:1180px;margin:0 auto;padding:24px;display:grid;grid-template-columns:380px 1fr;gap:24px;align-items:start}
+  @media (max-width:900px){main{grid-template-columns:1fr;padding:16px}}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:20px}
+  .card h2{margin:0 0 4px;font-size:17px}
+  .card .sub{margin:0 0 16px;color:var(--muted);font-size:13.5px}
+  .stack{display:grid;gap:24px}
+  .field{display:grid;gap:6px;margin-bottom:14px}
+  .field > label,.field > .lbl{font-weight:600;font-size:13.5px}
+  .hint{color:var(--muted);font-size:12.5px}
+  input[type=text],input[type=number],textarea{font:inherit;width:100%;padding:10px 12px;border:1px solid #cfd6e0;border-radius:9px;background:#fff;color:var(--ink)}
+  textarea{resize:vertical;min-height:72px}
+  .seg{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+  .seg input{position:absolute;opacity:0;pointer-events:none}
+  .seg label{display:flex;align-items:center;justify-content:center;border:1px solid #cfd6e0;border-radius:9px;padding:9px 6px;text-align:center;cursor:pointer;font-weight:600;font-size:13.5px;transition:all .15s}
+  .seg input:checked + span{color:#fff}
+  .seg label:has(input:checked){background:var(--navy);border-color:var(--navy);color:#fff}
+  .drop{border:1.5px dashed #b8c2cf;border-radius:10px;padding:16px;text-align:center;cursor:pointer;color:var(--muted);transition:border-color .15s,background .15s}
+  .drop:hover,.drop.over{border-color:var(--minor);background:#f2f9f9}
+  .drop strong{color:var(--ink)}
+  .preview{display:none;align-items:center;gap:12px;border:1px solid var(--line);border-radius:10px;padding:10px}
+  .preview.show{display:flex}
+  .preview .img{width:120px;height:72px;border-radius:8px;background:#fff repeating-conic-gradient(#eef1f5 0 25%,#fff 0 50%) 0 0/14px 14px;display:grid;place-items:center;overflow:hidden;border:1px solid var(--line)}
+  .preview img{max-width:100%;max-height:100%;object-fit:contain}
+  .preview .meta{flex:1;font-size:12.5px;color:var(--muted)}
+  .actions{display:flex;gap:8px;flex-wrap:wrap}
+  .tier{margin-bottom:22px}
+  .tier:last-child{margin-bottom:0}
+  .tier-h{display:flex;align-items:center;gap:10px;margin:0 0 10px}
+  .tier-h h3{margin:0;font-size:14px;text-transform:uppercase;letter-spacing:.08em}
+  .pill{font-size:12px;font-weight:700;padding:2px 9px;border-radius:999px;background:#eef1f5;color:var(--muted)}
+  .tier[data-t=major] h3{color:var(--major)}
+  .tier[data-t=minor] h3{color:var(--minor)}
+  .tier[data-t=special] h3{color:var(--special)}
+  .row{display:flex;align-items:center;gap:12px;padding:10px;border:1px solid var(--line);border-radius:10px;margin-bottom:8px;background:#fff}
+  .row.editing{border-color:var(--minor);box-shadow:0 0 0 3px rgba(42,127,134,.15)}
+  .thumb{width:64px;height:40px;border-radius:6px;border:1px solid var(--line);display:grid;place-items:center;overflow:hidden;flex:none;background:#fff}
+  .thumb img{max-width:100%;max-height:100%;object-fit:contain}
+  .thumb .mono{font-family:Montserrat,sans-serif;font-weight:800;font-size:15px;color:var(--muted)}
+  .row .nm{flex:1;font-weight:600;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .row .tools{display:flex;gap:2px}
+  .icon{width:34px;height:34px;padding:0;justify-content:center}
+  .empty{border:1px dashed #cfd6e0;border-radius:10px;padding:14px;color:var(--muted);font-size:13.5px;text-align:center}
+  .grid2{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+  .notice{background:#fff7e8;border:1px solid #f3d9a6;color:#6b4a0c;border-radius:10px;padding:12px 14px;font-size:13.5px;margin:0 24px;max-width:1132px}
+  .notice-wrap{padding-top:16px}
+  .toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%) translateY(20px);background:var(--navy);color:#fff;padding:11px 18px;border-radius:10px;font-weight:600;opacity:0;pointer-events:none;transition:opacity .2s,transform .2s;z-index:50}
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+  .toast.err{background:var(--danger)}
+  dialog{border:none;border-radius:14px;padding:22px;max-width:400px;width:calc(100% - 32px)}
+  dialog::backdrop{background:rgba(11,30,58,.45)}
+  dialog h3{margin:0 0 6px}
+  dialog p{margin:0 0 18px;color:var(--muted)}
+  @media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<header>
+  <div class="brand"><span class="ball-dot" aria-hidden="true"></span>Sponsor Manager</div>
+  <span id="mode" class="mode">Connecting…</span>
+  <span class="spacer"></span>
+  <a id="tvLink" class="btn accent" href="tvurl.html" target="_blank" rel="noopener">Open TV display ↗</a>
+</header>
+<div class="notice-wrap" id="localNotice" hidden>
+  <div class="notice"><strong>Local mode:</strong> hindi pa naka-set ang Firebase config, kaya sa browser na ito lang naka-save ang sponsors. Gagana ang TV display kung bubuksan sa parehong browser. Para sa live sync sa ibang device, i-paste ang config sa <code>firebase-config.js</code>.</div>
+</div>
+
+<main>
+  <div class="stack">
+    <section class="card" aria-labelledby="formTitle">
+      <h2 id="formTitle">Add sponsor</h2>
+      <p class="sub" id="formSub">Lalabas agad sa TV sa susunod na ikot ng showcase.</p>
+      <form id="form" novalidate>
+        <div class="field">
+          <label for="name">Name</label>
+          <input id="name" type="text" maxlength="80" autocomplete="off" placeholder="e.g. Juan's Hardware">
+          <span class="hint" id="nameErr" hidden style="color:var(--danger)">Enter the sponsor's name.</span>
+        </div>
+        <div class="field">
+          <span class="lbl" id="typeLbl">Type</span>
+          <div class="seg" role="radiogroup" aria-labelledby="typeLbl">
+            <label><input type="radio" name="type" value="major" checked>Major</label>
+            <label><input type="radio" name="type" value="minor">Minor</label>
+            <label><input type="radio" name="type" value="special">Special Thanks</label>
+          </div>
+        </div>
+        <div class="field">
+          <span class="lbl">Logo <span class="hint">(optional)</span></span>
+          <div class="drop" id="drop" tabindex="0" role="button" aria-label="Upload logo">
+            <strong>Click to upload</strong> o i-drag dito ang logo<br>
+            <span class="hint">PNG na transparent ang background ang pinakamaganda</span>
+          </div>
+          <input id="file" type="file" accept="image/*" hidden>
+          <div class="preview" id="preview">
+            <div class="img"><img id="previewImg" alt="Logo preview"></div>
+            <div class="meta" id="previewMeta"></div>
+            <button type="button" class="btn sm ghost danger" id="removeLogo">Remove</button>
+          </div>
+        </div>
+        <div class="actions">
+          <button type="submit" class="btn primary" id="submitBtn">Add sponsor</button>
+          <button type="button" class="btn" id="cancelEdit" hidden>Cancel</button>
+        </div>
+      </form>
+    </section>
+
+    <section class="card" aria-labelledby="setTitle">
+      <h2 id="setTitle">Display text</h2>
+      <p class="sub">Mga salitang lalabas sa intro at closing ng TV.</p>
+      <form id="settingsForm">
+        <div class="field"><label for="s_eventName">Event name</label><input id="s_eventName" type="text" maxlength="80" placeholder="e.g. 72nd ANMSEC Dink and Mine"></div>
+        <div class="field"><label for="s_eyebrow">Intro small heading</label><input id="s_eyebrow" type="text" maxlength="60"></div>
+        <div class="field"><label for="s_introText">Intro message</label><textarea id="s_introText" maxlength="180"></textarea><span class="hint">Ang salitang "sponsor/sponsors" ay naka-highlight sa TV.</span></div>
+        <div class="field"><label for="s_outroTitle">Closing title</label><input id="s_outroTitle" type="text" maxlength="40"></div>
+        <div class="field"><label for="s_outroText">Closing message</label><input id="s_outroText" type="text" maxlength="120"></div>
+        <div class="field">
+          <span class="lbl">Seconds on screen</span>
+          <div class="grid2">
+            <div><label class="hint" for="s_majorSeconds">Each major</label><input id="s_majorSeconds" type="number" min="2" max="30"></div>
+            <div><label class="hint" for="s_minorSeconds">Minor page</label><input id="s_minorSeconds" type="number" min="2" max="30"></div>
+            <div><label class="hint" for="s_specialSeconds">Thanks page</label><input id="s_specialSeconds" type="number" min="2" max="30"></div>
+          </div>
+        </div>
+        <button type="submit" class="btn primary">Save display text</button>
+      </form>
+    </section>
+  </div>
+
+  <section class="card" aria-labelledby="listTitle">
+    <h2 id="listTitle">Sponsors</h2>
+    <p class="sub">Ganitong pagkakasunod ang lalabas sa TV. Gamitin ang ↑ ↓ para baguhin.</p>
+    <div id="list"></div>
+  </section>
+</main>
+
+<dialog id="confirmDlg">
+  <h3 id="dlgTitle">Delete sponsor?</h3>
+  <p id="dlgText"></p>
+  <div class="actions" style="justify-content:flex-end">
+    <button class="btn" value="cancel" id="dlgCancel">Keep sponsor</button>
+    <button class="btn primary" style="background:var(--danger);border-color:var(--danger)" id="dlgOk">Delete</button>
+  </div>
+</dialog>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script src="firebase-config.js"></script>
+<script src="sponsor-store.js"></script>
+<script>
+(function(){
+  const S = window.SponsorStore;
+  const $ = id => document.getElementById(id);
+  const TYPE_LABEL = { major:'Major sponsors', minor:'Minor sponsors', special:'Special thanks' };
+  let data = { settings: S.DEFAULT_SETTINGS, sponsors: [] };
+  let editingId = null;
+  let logoData = null;          // data URL or null
+  let settingsLoaded = false;
+
+  // ---- header / mode ----
+  const q = S.EVENT_ID !== 'main' ? '?event=' + encodeURIComponent(S.EVENT_ID) : '';
+  $('tvLink').href = 'tvurl.html' + q;
+  if (S.mode === 'firebase') { $('mode').textContent = 'Live · Firebase'; $('mode').className = 'mode live'; }
+  else { $('mode').textContent = 'Local mode'; $('mode').className = 'mode local'; $('localNotice').hidden = false; }
+  if (S.EVENT_ID !== 'main') $('mode').textContent += ' · ' + S.EVENT_ID;
+
+  // ---- toast ----
+  let tt;
+  function toast(msg, err){
+    const t = $('toast'); t.textContent = msg; t.className = 'toast show' + (err ? ' err' : '');
+    clearTimeout(tt); tt = setTimeout(() => t.className = 'toast', 2600);
+  }
+
+  // ---- logo processing: resize + compress, keeps transparency ----
+  function processLogo(file){
+    return new Promise((resolve, reject) => {
+      if (!file.type.startsWith('image/')) return reject(new Error('Image files lang ang puwede.'));
+      const reader = new FileReader();
+      reader.onerror = () => reject(new Error('Hindi mabasa ang file.'));
+      reader.onload = () => {
+        const img = new Image();
+        img.onerror = () => reject(new Error('Hindi mabuksan ang image na ito.'));
+        img.onload = () => {
+          const MAX = 800;
+          let w = img.naturalWidth || 800, h = img.naturalHeight || 400;
+          const s = Math.min(1, MAX / Math.max(w, h));
+          w = Math.max(1, Math.round(w * s)); h = Math.max(1, Math.round(h * s));
+          const c = document.createElement('canvas'); c.width = w; c.height = h;
+          c.getContext('2d').drawImage(img, 0, 0, w, h);
+          let q = 0.9, out = c.toDataURL('image/webp', q);
+          if (!out.startsWith('data:image/webp')) out = c.toDataURL('image/png');
+          while (out.length > 600000 && q > 0.4) { q -= 0.15; out = c.toDataURL('image/webp', q); }
+          if (out.length > 900000) return reject(new Error('Masyadong malaki ang logo kahit na-compress na. Subukan ang mas maliit na file.'));
+          resolve({ url: out, w, h, kb: Math.round(out.length * 0.75 / 1024) });
+        };
+        img.src = reader.result;
+      };
+      reader.readAsDataURL(file);
+    });
+  }
+  function showPreview(url, meta){
+    logoData = url;
+    $('previewImg').src = url || '';
+    $('previewMeta').textContent = meta || '';
+    $('preview').classList.toggle('show', !!url);
+    $('drop').hidden = !!url;
+  }
+  async function handleFile(file){
+    if (!file) return;
+    try {
+      const r = await processLogo(file);
+      showPreview(r.url, r.w + '×' + r.h + ' · ' + r.kb + ' KB');
+    } catch (e) { toast(e.message, true); }
+  }
+  const drop = $('drop');
+  drop.addEventListener('click', () => $('file').click());
+  drop.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); $('file').click(); } });
+  $('file').addEventListener('change', e => { handleFile(e.target.files[0]); e.target.value = ''; });
+  ['dragenter','dragover'].forEach(ev => drop.addEventListener(ev, e => { e.preventDefault(); drop.classList.add('over'); }));
+  ['dragleave','drop'].forEach(ev => drop.addEventListener(ev, e => { e.preventDefault(); drop.classList.remove('over'); }));
+  drop.addEventListener('drop', e => handleFile(e.dataTransfer.files[0]));
+  $('removeLogo').addEventListener('click', () => showPreview(null));
+
+  // ---- form ----
+  const nameEl = $('name');
+  nameEl.addEventListener('input', () => { $('nameErr').hidden = true; nameEl.style.borderColor = ''; });
+  nameEl.addEventListener('blur', () => { if (!nameEl.value.trim() && editingId) markNameErr(); });
+  function markNameErr(){ $('nameErr').hidden = false; nameEl.style.borderColor = 'var(--danger)'; }
+  function getType(){ return document.querySelector('input[name=type]:checked').value; }
+  function setType(t){ document.querySelector('input[name=type][value=' + t + ']').checked = true; }
+
+  function resetForm(){
+    editingId = null;
+    nameEl.value = ''; setType(getType()); showPreview(null);
+    $('formTitle').textContent = 'Add sponsor';
+    $('formSub').textContent = 'Lalabas agad sa TV sa susunod na ikot ng showcase.';
+    $('submitBtn').textContent = 'Add sponsor';
+    $('cancelEdit').hidden = true;
+    render();
+  }
+  function startEdit(sp){
+    editingId = sp.id;
+    nameEl.value = sp.name; setType(sp.type);
+    showPreview(sp.logo || null, sp.logo ? 'Current logo' : '');
+    $('formTitle').textContent = 'Edit sponsor';
+    $('formSub').textContent = 'Binabago: ' + sp.name;
+    $('submitBtn').textContent = 'Save changes';
+    $('cancelEdit').hidden = false;
+    render();
+    nameEl.focus();
+    if (innerWidth < 900) $('form').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+  $('cancelEdit').addEventListener('click', resetForm);
+
+  $('form').addEventListener('submit', async e => {
+    e.preventDefault();
+    const name = nameEl.value.trim();
+    if (!name) { markNameErr(); nameEl.focus(); return; }
+    const btn = $('submitBtn'); const label = btn.textContent;
+    btn.disabled = true; btn.textContent = 'Saving…';
+    try {
+      if (editingId) {
+        const sp = data.sponsors.find(x => x.id === editingId);
+        const patch = { name, type: getType(), logo: logoData || null };
+        if (sp && sp.type !== patch.type) patch.order = Date.now();
+        await S.updateSponsor(editingId, patch);
+        toast('Saved ' + name);
+      } else {
+        await S.addSponsor({ name, type: getType(), logo: logoData });
+        toast('Added ' + name);
+      }
+      const keepType = getType();
+      resetForm(); setType(keepType); nameEl.focus();
+    } catch (err) {
+      console.error(err);
+      toast('Hindi na-save: ' + (err.code || err.message), true);
+    } finally { btn.disabled = false; if (btn.textContent === 'Saving…') btn.textContent = label; }
+  });
+
+  // ---- delete confirm ----
+  const dlg = $('confirmDlg'); let pendingDelete = null;
+  $('dlgCancel').addEventListener('click', () => dlg.close());
+  $('dlgOk').addEventListener('click', async () => {
+    const sp = pendingDelete; dlg.close();
+    if (!sp) return;
+    try { await S.deleteSponsor(sp.id); toast('Deleted ' + sp.name); if (editingId === sp.id) resetForm(); }
+    catch (err) { toast('Hindi na-delete: ' + (err.code || err.message), true); }
+  });
+  function askDelete(sp){
+    pendingDelete = sp;
+    $('dlgTitle').textContent = 'Delete ' + sp.name + '?';
+    $('dlgText').textContent = 'Mawawala ito sa TV showcase. Hindi na ito maibabalik.';
+    dlg.showModal(); $('dlgCancel').focus();
+  }
+
+  // ---- list render ----
+  function el(tag, cls, text){ const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; }
+  function iconBtn(label, sym, fn, extra){
+    const b = el('button', 'btn ghost icon' + (extra ? ' ' + extra : ''), sym);
+    b.type = 'button'; b.title = label; b.setAttribute('aria-label', label); b.addEventListener('click', fn); return b;
+  }
+  function render(){
+    const list = $('list'); list.innerHTML = '';
+    S.TYPES.forEach(t => {
+      const items = data.sponsors.filter(s => s.type === t);
+      const wrap = el('div', 'tier'); wrap.dataset.t = t;
+      const h = el('div', 'tier-h'); h.append(el('h3', null, TYPE_LABEL[t]), el('span', 'pill', items.length)); wrap.append(h);
+      if (!items.length) wrap.append(el('div', 'empty', t === 'special' ? 'Wala pang nasa Special Thanks.' : 'Wala pang ' + (t === 'major' ? 'Major' : 'Minor') + ' sponsor. Idagdag gamit ang form.'));
+      items.forEach((sp, i) => {
+        const row = el('div', 'row' + (sp.id === editingId ? ' editing' : ''));
+        const th = el('div', 'thumb');
+        if (sp.logo) { const im = el('img'); im.src = sp.logo; im.alt = ''; th.append(im); }
+        else th.append(el('span', 'mono', sp.name.trim().slice(0, 2).toUpperCase()));
+        const tools = el('div', 'tools');
+        const up = iconBtn('Move ' + sp.name + ' up', '↑', () => S.swapOrder(sp, items[i - 1]).catch(e => toast(e.message, true)));
+        const dn = iconBtn('Move ' + sp.name + ' down', '↓', () => S.swapOrder(sp, items[i + 1]).catch(e => toast(e.message, true)));
+        up.disabled = i === 0; dn.disabled = i === items.length - 1;
+        const ed = el('button', 'btn sm', 'Edit'); ed.type = 'button'; ed.addEventListener('click', () => startEdit(sp));
+        const del = el('button', 'btn sm ghost danger', 'Delete'); del.type = 'button'; del.addEventListener('click', () => askDelete(sp));
+        tools.append(up, dn, ed, del);
+        row.append(th, el('div', 'nm', sp.name), tools);
+        wrap.append(row);
+      });
+      list.append(wrap);
+    });
+  }
+
+  // ---- settings ----
+  const SET_KEYS = ['eventName','eyebrow','introText','outroTitle','outroText','majorSeconds','minorSeconds','specialSeconds'];
+  function fillSettings(s){ SET_KEYS.forEach(k => { $('s_' + k).value = s[k] ?? ''; }); }
+  $('settingsForm').addEventListener('submit', async e => {
+    e.preventDefault();
+    const patch = {};
+    SET_KEYS.forEach(k => {
+      const v = $('s_' + k).value;
+      if (k.endsWith('Seconds')) patch[k] = Math.min(30, Math.max(2, parseFloat(v) || S.DEFAULT_SETTINGS[k]));
+      else patch[k] = v.trim();
+    });
+    try { await S.saveSettings(patch); toast('Display text saved'); }
+    catch (err) { toast('Hindi na-save: ' + (err.code || err.message), true); }
+  });
+
+  // ---- live data ----
+  S.subscribe(d => {
+    data = d;
+    if (!settingsLoaded) { fillSettings(d.settings); settingsLoaded = true; }
+    if (editingId && !d.sponsors.some(s => s.id === editingId)) resetForm();
+    render();
+  }, err => {
+    $('mode').textContent = 'Connection problem'; $('mode').className = 'mode local';
+    toast('Firebase error: ' + (err.code || err.message) + ' — tingnan ang Firestore rules.', true);
+  });
+})();
+</script>
+</body>
+</html>

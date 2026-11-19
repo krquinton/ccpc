@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sponsors · TV Display</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Montserrat:wght@600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --navy:#081a33; --navy2:#0d2a52; --ball:#d4f22c; --ball-hi:#f4ffa6; --ball-lo:#93b00a;
+    --ink:#0b1e3a; --white:#fff; --line:rgba(255,255,255,.2);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{width:100%;height:100%;background:#000;overflow:hidden}
+  body.idle{cursor:none}
+  #stage{position:absolute;left:50%;top:50%;width:1920px;height:1080px;transform-origin:50% 50%;overflow:hidden;
+    background:radial-gradient(1200px 700px at 50% 45%,var(--navy2) 0%,var(--navy) 60%,#050f20 100%);
+    font-family:Inter,system-ui,sans-serif;color:#fff}
+  .glow{position:absolute;border-radius:50%;filter:blur(90px);opacity:.35;pointer-events:none}
+  .glow.a{width:700px;height:700px;left:-200px;top:-220px;background:#1c5aa8;animation:drift 18s ease-in-out infinite alternate}
+  .glow.b{width:620px;height:620px;right:-180px;bottom:-240px;background:#2a7f86;animation:drift 22s ease-in-out infinite alternate-reverse}
+  .glow.c{width:420px;height:420px;left:46%;top:30%;background:rgba(212,242,44,.25);opacity:.18;animation:drift 26s ease-in-out infinite alternate}
+  @keyframes drift{to{transform:translate(120px,80px) scale(1.15)}}
+  #court{position:absolute;inset:0;pointer-events:none}
+  #court .surf{fill:rgba(40,110,190,.07)}
+  #court .kit{fill:rgba(212,242,44,.035)}
+  #court path{fill:none;stroke:var(--line);stroke-width:4;stroke-linecap:round;stroke-dasharray:1;stroke-dashoffset:1}
+  #court path.net{stroke:rgba(255,255,255,.32);stroke-width:6;stroke-dasharray:none}
+  .vignette{position:absolute;inset:0;pointer-events:none;background:radial-gradient(ellipse at center,transparent 55%,rgba(0,0,0,.55) 100%)}
+
+  #content,#fx{position:absolute;inset:0}
+  #fx{pointer-events:none}
+  .scene{position:absolute;inset:0;visibility:hidden}
+
+  /* ball */
+  #ball{position:absolute;left:0;top:0;width:66px;height:66px;z-index:20;visibility:hidden;filter:drop-shadow(0 0 22px rgba(212,242,44,.55)) drop-shadow(0 10px 14px rgba(0,0,0,.35))}
+  #ball .core{width:100%;height:100%;transform-origin:50% 100%}
+  #ball .tex{width:100%;height:100%;border-radius:50%;
+    background:
+      radial-gradient(circle at 50% 50%,rgba(70,90,0,.55) 0 3.2px,transparent 4px) 0 0/16.5px 16.5px,
+      radial-gradient(circle at 34% 28%,var(--ball-hi) 0%,var(--ball) 42%,var(--ball-lo) 100%);
+    box-shadow:inset -6px -8px 14px rgba(0,0,0,.25),inset 4px 5px 10px rgba(255,255,255,.35)}
+  .ring{position:absolute;left:0;top:0;width:110px;height:110px;border-radius:50%;border:5px solid var(--ball);box-shadow:0 0 30px rgba(212,242,44,.6)}
+  .spark{position:absolute;left:0;top:0;width:10px;height:10px;margin:-5px 0 0 -5px;border-radius:50%;background:var(--ball);box-shadow:0 0 12px var(--ball)}
+
+  /* type */
+  .center-col{position:absolute;left:0;right:0;top:0;height:820px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:0 200px}
+  .eyebrow{font-family:Montserrat,sans-serif;font-weight:700;font-size:26px;letter-spacing:.32em;text-transform:uppercase;color:var(--ball);margin-bottom:34px}
+  .headline{font-family:Montserrat,sans-serif;font-weight:800;font-size:78px;line-height:1.12;letter-spacing:-.01em;max-width:1500px}
+  .w{display:inline-block;overflow:hidden;vertical-align:top;padding:0 .02em .1em}
+  .wi{display:inline-block}
+  .hl{color:var(--ball)}
+  .chip{margin-top:44px;font-weight:600;font-size:26px;padding:12px 28px;border:2px solid rgba(255,255,255,.25);border-radius:999px;color:rgba(255,255,255,.9)}
+
+  /* tier title */
+  .tier-wrap{position:absolute;left:0;right:0;top:50%;transform:translateY(-50%);text-align:center}
+  .tier-eyebrow{font-family:Montserrat,sans-serif;font-weight:700;font-size:28px;letter-spacing:.34em;text-transform:uppercase;color:rgba(255,255,255,.75);margin-bottom:18px}
+  .tier-title{font-family:Montserrat,sans-serif;font-weight:900;font-size:136px;line-height:1;text-transform:uppercase;letter-spacing:.02em;display:inline-block}
+  .tier-title .hl{color:var(--ball)}
+  .streak{position:absolute;left:0;top:536px;height:6px;width:2000px;transform-origin:0 50%;
+    background:linear-gradient(90deg,rgba(212,242,44,0),rgba(212,242,44,.85));border-radius:3px}
+
+  /* section header (inside pages) */
+  .sec-head{position:absolute;left:0;right:0;top:92px;text-align:center}
+  .sec-head .t{font-family:Montserrat,sans-serif;font-weight:800;font-size:34px;letter-spacing:.3em;text-transform:uppercase;color:var(--ball)}
+  .sec-head .rule{width:120px;height:4px;border-radius:2px;background:rgba(255,255,255,.25);margin:18px auto 0}
+  .page-dots{display:flex;gap:10px;justify-content:center;margin-top:16px}
+  .page-dots i{width:10px;height:10px;border-radius:50%;background:rgba(255,255,255,.25)}
+  .page-dots i.on{background:var(--ball)}
+
+  /* major card */
+  .badge{position:absolute;left:0;right:0;top:120px;text-align:center;font-family:Montserrat,sans-serif;font-weight:800;font-size:28px;letter-spacing:.34em;text-transform:uppercase;color:var(--ball)}
+  .mcard{position:absolute;left:400px;top:210px;width:1120px;height:620px;border-radius:34px;background:#fff;color:var(--ink);overflow:hidden;
+    box-shadow:0 40px 90px rgba(0,0,0,.5),0 0 0 10px rgba(255,255,255,.06);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:50px 70px}
+  .mcard .logo{width:980px;height:380px;display:flex;align-items:center;justify-content:center}
+  .mcard .logo img{max-width:100%;max-height:100%;object-fit:contain}
+  .mcard .nm{font-family:Montserrat,sans-serif;font-weight:800;font-size:54px;margin-top:34px;text-align:center;line-height:1.1}
+  .mcard.nologo .nm{margin-top:0;font-size:110px;line-height:1.05}
+  .mcard.nologo .bar{width:140px;height:10px;border-radius:5px;background:var(--ball);margin-top:40px}
+  .sheen{position:absolute;inset:0;background:linear-gradient(105deg,transparent 35%,rgba(212,242,44,.28) 48%,rgba(255,255,255,.0) 60%);pointer-events:none}
+
+  /* minor cards */
+  .ncard{position:absolute;width:400px;height:270px;border-radius:24px;background:#fff;color:var(--ink);box-shadow:0 24px 50px rgba(0,0,0,.4);
+    display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px 26px;overflow:hidden}
+  .ncard .logo{width:340px;height:150px;display:flex;align-items:center;justify-content:center}
+  .ncard .logo img{max-width:100%;max-height:100%;object-fit:contain}
+  .ncard .nm{font-family:Montserrat,sans-serif;font-weight:700;font-size:26px;margin-top:16px;text-align:center;line-height:1.15}
+  .ncard.nologo .nm{margin-top:0;font-size:40px;font-weight:800}
+  .ncard.nologo::after{content:"";width:70px;height:7px;border-radius:4px;background:var(--ball);margin-top:20px}
+
+  /* special thanks */
+  .thanks{position:absolute;left:140px;right:140px;top:250px;bottom:170px;display:grid;grid-auto-flow:column;align-content:center;justify-content:center;column-gap:90px;row-gap:26px}
+  .titem{display:flex;align-items:center;gap:20px;font-family:Montserrat,sans-serif;font-weight:700;font-size:40px;line-height:1.15;min-width:0}
+  .titem .lg{width:76px;height:76px;flex:none;border-radius:16px;background:#fff;display:flex;align-items:center;justify-content:center;padding:8px}
+  .titem .lg img{max-width:100%;max-height:100%;object-fit:contain}
+  .titem .dot{width:14px;height:14px;flex:none;border-radius:50%;background:var(--ball);box-shadow:0 0 12px rgba(212,242,44,.6)}
+
+  /* outro */
+  .outro-title{font-family:Montserrat,sans-serif;font-weight:900;font-size:140px;line-height:1.05;letter-spacing:-.01em}
+  .outro-text{font-size:38px;font-weight:500;color:rgba(255,255,255,.85);margin-top:30px;max-width:1300px}
+
+  /* footer */
+  #footer{position:absolute;left:70px;right:70px;bottom:44px;display:flex;align-items:center;justify-content:space-between;font-family:Montserrat,sans-serif;font-weight:700;font-size:22px;letter-spacing:.18em;text-transform:uppercase;color:rgba(255,255,255,.6);z-index:5}
+  #footer .ev{display:flex;align-items:center;gap:14px}
+  #footer .ev::before{content:"";width:16px;height:16px;border-radius:50%;background:radial-gradient(circle at 35% 30%,var(--ball-hi),var(--ball) 50%,var(--ball-lo))}
+  #footer .ev:empty::before{display:none}
+  #status{position:absolute;left:50%;bottom:120px;transform:translateX(-50%);font-size:22px;color:rgba(255,255,255,.55);z-index:30;text-align:center}
+</style>
+</head>
+<body>
+<div id="stage">
+  <div class="glow a"></div><div class="glow b"></div><div class="glow c"></div>
+  <svg id="court" viewBox="0 0 1920 1080" aria-hidden="true">
+    <rect class="surf" x="190" y="190" width="1540" height="700"/>
+    <rect class="kit" x="715" y="190" width="490" height="700"/>
+    <path pathLength="1" d="M190 190 H1730 V890 H190 Z"/>
+    <path pathLength="1" d="M715 190 V890"/>
+    <path pathLength="1" d="M1205 190 V890"/>
+    <path pathLength="1" d="M190 540 H715"/>
+    <path pathLength="1" d="M1205 540 H1730"/>
+    <path class="net" d="M960 170 V910" opacity="0"/>
+  </svg>
+  <div class="vignette"></div>
+  <div id="content"></div>
+  <div id="fx"></div>
+  <div id="ball"><div class="core"><div class="tex"></div></div></div>
+  <div id="footer"><span class="ev" id="fEvent"></span><span id="fTier"></span></div>
+  <div id="status"></div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script src="firebase-config.js"></script>
+<script src="sponsor-store.js"></script>
+<script>
+(function(){
+  const $ = id => document.getElementById(id);
+  const stage = $('stage'), content = $('content'), fx = $('fx');
+  const ball = $('ball'), core = ball.querySelector('.core'), tex = ball.querySelector('.tex');
+  const courtLines = [...document.querySelectorAll('#court path:not(.net)')];
+  const net = document.querySelector('#court .net');
+  const params = new URLSearchParams(location.search);
+
+  if (!window.gsap) { $('status').textContent = 'Animation library failed to load. Check the internet connection, then refresh.'; return; }
+
+  // ---------- fit 1920x1080 stage to any screen ----------
+  function fit(){ const s = Math.min(innerWidth / 1920, innerHeight / 1080); stage.style.transform = `translate(-50%,-50%) scale(${s})`; }
+  addEventListener('resize', fit); fit();
+
+  // ---------- helpers ----------
+  const div = (cls, text) => { const e = document.createElement('div'); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; };
+  const rand = (a, b) => a + Math.random() * (b - a);
+  function splitWords(el, text, re){
+    el.textContent = '';
+    String(text || '').split(/\s+/).filter(Boolean).forEach(w => {
+      const o = document.createElement('span'); o.className = 'w';
+      const i = document.createElement('span'); i.className = 'wi'; i.textContent = w;
+      if (re && re.test(w)) i.classList.add('hl');
+      o.append(i); el.append(o, ' ');
+    });
+    return el.querySelectorAll('.wi');
+  }
+  function fitFont(text, base, min, ideal){
+    const n = String(text).length; return Math.max(min, Math.min(base, Math.round(base * ideal / Math.max(n, 1))));
+  }
+  function logoEl(src){ const b = div('logo'); const im = new Image(); im.src = src; im.alt = ''; b.append(im); return b; }
+  function scene(){ const s = div('scene'); content.append(s); return s; }
+
+  // ---------- ball physics (build-time position tracking) ----------
+  let bp = { x: -100, y: 800 };
+  function place(tl, x, y, at){ bp = { x, y }; tl.set(ball, { x, y, autoAlpha: 1, scale: 1 }, at); }
+  // hop from current ball position to (x,y). Returns landing time.
+  function hop(tl, x, y, h, d, at){
+    const x1 = bp.x, y1 = bp.y, apex = Math.min(y1, y) - h;
+    tl.to(ball, { x, duration: d, ease: 'none' }, at);
+    tl.to(tex, { rotation: '+=' + Math.round((x - x1) * 0.9), duration: d, ease: 'none' }, at);
+    tl.to(ball, { y: apex, duration: d * 0.5, ease: 'power2.out' }, at);
+    tl.to(ball, { y, duration: d * 0.5, ease: 'power2.in' }, at + d * 0.5);
+    tl.to(core, { scaleY: 0.72, scaleX: 1.22, duration: 0.07, yoyo: true, repeat: 1, ease: 'power1.out' }, at + d);
+    bp = { x, y };
+    return at + d;
+  }
+  function burst(tl, x, y, at, size){
+    size = size || 1;
+    const r = div('ring'); fx.append(r);
+    gsap.set(r, { x, y, xPercent: -50, yPercent: -50, scale: 0, autoAlpha: 0 });
+    tl.fromTo(r, { scale: 0.15, autoAlpha: 1 }, { scale: 3 * size, autoAlpha: 0, duration: 0.9, ease: 'expo.out', immediateRender: false }, at);
+    const n = Math.round(8 + 6 * size);
+    for (let i = 0; i < n; i++){
+      const s = div('spark'); fx.append(s);
+      const a = (Math.PI * 2 * i) / n + rand(-0.2, 0.2), dist = rand(70, 150) * size;
+      gsap.set(s, { x, y, autoAlpha: 0 });
+      tl.fromTo(s, { x, y, autoAlpha: 1, scale: rand(0.7, 1.3) },
+        { x: x + Math.cos(a) * dist, y: y + Math.sin(a) * dist, autoAlpha: 0, scale: 0.2, duration: rand(0.6, 1), ease: 'power3.out', immediateRender: false }, at);
+    }
+  }
+  const footTier = (tl, txt, at) => tl.call(() => { $('fTier').textContent = txt; }, null, at);
+
+  // ---------- scenes ----------
+  function sIntro(S){
+    const tl = gsap.timeline(), sc = scene();
+    const col = div('center-col');
+    const eb = div('eyebrow', S.eyebrow || '');
+    const hd = div('headline'); const ws = splitWords(hd, S.introText, /sponsor/i);
+    col.append(eb, hd);
+    let chip = null;
+    if (S.eventName){ chip = div('chip', S.eventName); col.append(chip); }
+    sc.append(col);
+    tl.set(sc, { autoAlpha: 1, immediateRender: false }, 0);
+    footTier(tl, '', 0);
+    gsap.set([eb, chip].filter(Boolean), { autoAlpha: 0 }); gsap.set(ws, { yPercent: 115 });
+
+    tl.set(courtLines, { strokeDashoffset: 1, autoAlpha: 1 }, 0);
+    tl.to(courtLines, { strokeDashoffset: 0, duration: 1.5, stagger: 0.08, ease: 'power2.inOut' }, 0);
+    tl.fromTo(net, { opacity: 0, scaleY: 0, transformOrigin: '50% 50%' }, { opacity: 1, scaleY: 1, duration: 0.8, ease: 'expo.out' }, 0.9);
+
+    place(tl, -90, 620, 0.3);
+    let t = hop(tl, 330, 860, 200, 0.55, 0.3);
+    t = hop(tl, 690, 860, 240, 0.55, t);
+    t = hop(tl, 960, 860, 300, 0.6, t);
+    burst(tl, 960, 880, t, 1.7);
+    tl.fromTo(eb, { autoAlpha: 0, letterSpacing: '0.6em' }, { autoAlpha: 1, letterSpacing: '0.32em', duration: 1.1, ease: 'expo.out' }, t);
+    tl.to(ws, { yPercent: 0, duration: 0.9, stagger: 0.05, ease: 'expo.out' }, t + 0.05);
+    if (chip) tl.fromTo(chip, { autoAlpha: 0, y: 20 }, { autoAlpha: 1, y: 0, duration: 0.7, ease: 'power3.out' }, t + 0.6);
+    let d = hop(tl, 960, 860, 70, 0.36, t + 0.14);
+    d = hop(tl, 960, 860, 22, 0.2, d);
+
+    const out = t + 4.6;
+    tl.to(ws, { yPercent: -115, duration: 0.55, stagger: 0.025, ease: 'power3.in' }, out);
+    tl.to([eb, chip].filter(Boolean), { autoAlpha: 0, duration: 0.4 }, out + 0.2);
+    hop(tl, 2060, 640, 220, 0.75, out);
+    tl.set(sc, { autoAlpha: 0 }, out + 1);
+    return tl;
+  }
+
+  const TIER = {
+    major:   { eyebrow: 'Presenting our', words: ['Major', 'Sponsors'],  foot: 'Major Sponsors' },
+    minor:   { eyebrow: 'Supported by our', words: ['Minor', 'Sponsors'], foot: 'Minor Sponsors' },
+    special: { eyebrow: 'With special thanks to', words: ['Special', 'Thanks'], foot: 'Special Thanks' }
+  };
+
+  function sTier(type){
+    const T = TIER[type], tl = gsap.timeline(), sc = scene();
+    const wrap = div('tier-wrap');
+    const eb = div('tier-eyebrow', T.eyebrow);
+    const ti = div('tier-title'); ti.innerHTML = '';
+    const a = document.createElement('span'); a.textContent = T.words[0] + ' ';
+    const b = document.createElement('span'); b.className = 'hl'; b.textContent = T.words[1];
+    ti.append(a, b);
+    wrap.append(eb, ti);
+    const streak = div('streak');
+    sc.append(streak, wrap);
+    tl.set(sc, { autoAlpha: 1, immediateRender: false }, 0);
+    footTier(tl, T.foot, 0);
+    gsap.set(eb, { autoAlpha: 0 });
+    gsap.set(ti, { clipPath: 'inset(0% 100% 0% 0%)' });
+    gsap.set(streak, { scaleX: 0, autoAlpha: 1 });
+
+    // a flat "drive" across the court reveals the title
+    place(tl, -90, 540, 0.1);
+    tl.to(ball, { x: 2010, duration: 0.85, ease: 'none' }, 0.1);
+    tl.to(tex, { rotation: '+=1400', duration: 0.85, ease: 'none' }, 0.1);
+    tl.to(streak, { scaleX: 1, duration: 0.85, ease: 'none' }, 0.1);
+    tl.to(ti, { clipPath: 'inset(0% 0% 0% 0%)', duration: 0.55, ease: 'none' }, 0.22);
+    tl.to(streak, { autoAlpha: 0, duration: 0.6 }, 0.95);
+    tl.fromTo(eb, { autoAlpha: 0, y: 20 }, { autoAlpha: 1, y: 0, duration: 0.7, ease: 'power3.out' }, 0.6);
+    tl.fromTo(ti, { scale: 1.04 }, { scale: 1, duration: 2, ease: 'power2.out' }, 0.2);
+    bp = { x: 2010, y: 540 };
+
+    const out = 2.6;
+    tl.to(ti, { clipPath: 'inset(0% 0% 0% 100%)', duration: 0.5, ease: 'power3.in' }, out);
+    tl.to(eb, { autoAlpha: 0, y: -16, duration: 0.4 }, out);
+    tl.set(sc, { autoAlpha: 0 }, out + 0.55);
+    return tl;
+  }
+
+  function sMajor(sp, i, secs){
+    const tl = gsap.timeline(), sc = scene();
+    const badge = div('badge', 'Major Sponsor');
+    const card = div('mcard' + (sp.logo ? '' : ' nologo'));
+    let logo = null;
+    const nm = div('nm', sp.name);
+    if (sp.logo){ logo = logoEl(sp.logo); card.append(logo); nm.style.fontSize = fitFont(sp.name, 54, 34, 26) + 'px'; }
+    else { nm.style.fontSize = fitFont(sp.name, 110, 56, 14) + 'px'; }
+    card.append(nm);
+    if (!sp.logo) card.append(div('bar'));
+    const sheen = div('sheen'); card.append(sheen);
+    sc.append(badge, card);
+    tl.set(sc, { autoAlpha: 1, immediateRender: false }, 0);
+    gsap.set([card, badge, nm], { autoAlpha: 0 }); gsap.set(sheen, { xPercent: -110 });
+
+    const fromRight = i % 2 === 1;
+    place(tl, fromRight ? 2010 : -90, 240, 0.05);
+    const land = hop(tl, 960, 520, 170, 0.8, 0.05);
+    burst(tl, 960, 520, land, 1.8);
+    tl.to(ball, { autoAlpha: 0, scale: 0.4, duration: 0.15 }, land);
+    tl.fromTo(card, { autoAlpha: 0, scale: 0.25 }, { autoAlpha: 1, scale: 1, duration: 0.85, ease: 'back.out(1.35)' }, land);
+    tl.fromTo(badge, { autoAlpha: 0, y: 24, letterSpacing: '0.6em' }, { autoAlpha: 1, y: 0, letterSpacing: '0.34em', duration: 0.9, ease: 'expo.out' }, land + 0.2);
+    tl.fromTo(nm, { autoAlpha: 0, y: 30 }, { autoAlpha: 1, y: 0, duration: 0.7, ease: 'power3.out' }, land + 0.35);
+    if (logo) tl.fromTo(logo, { scale: 0.92 }, { scale: 1.03, duration: secs + 0.6, ease: 'none' }, land);
+    tl.to(sheen, { xPercent: 110, duration: 1.1, ease: 'power2.inOut' }, land + 0.7);
+
+    const out = land + secs;
+    tl.to(card, { autoAlpha: 0, scale: 0.94, y: -30, duration: 0.5, ease: 'power2.in' }, out);
+    tl.to(badge, { autoAlpha: 0, duration: 0.35 }, out);
+    tl.set(sc, { autoAlpha: 0 }, out + 0.55);
+    bp = { x: 960, y: 520 };
+    return tl;
+  }
+
+  function secHead(title, page, pages){
+    const h = div('sec-head');
+    h.append(div('t', title), div('rule'));
+    if (pages > 1){
+      const d = div('page-dots');
+      for (let k = 0; k < pages; k++){ const i = document.createElement('i'); if (k === page) i.className = 'on'; d.append(i); }
+      h.append(d);
+    }
+    return h;
+  }
+
+  function sMinor(items, page, pages, secs){
+    const tl = gsap.timeline(), sc = scene();
+    const head = secHead('Minor Sponsors', page, pages);
+    sc.append(head);
+    const n = items.length;
+    const cols = n <= 4 ? n : Math.ceil(n / 2), rows = n <= 4 ? 1 : 2;
+    const CW = 400, CH = 270, GX = 44, GY = 56;
+    const gridH = rows * CH + (rows - 1) * GY, top0 = 575 - gridH / 2;
+    const cards = items.map((sp, k) => {
+      const r = Math.floor(k / cols), inRow = r === rows - 1 ? n - cols * (rows - 1) : cols, c = k - r * cols;
+      const rowW = inRow * CW + (inRow - 1) * GX, left = 960 - rowW / 2 + c * (CW + GX), top = top0 + r * (CH + GY);
+      const card = div('ncard' + (sp.logo ? '' : ' nologo'));
+      card.style.left = left + 'px'; card.style.top = top + 'px';
+      if (sp.logo) card.append(logoEl(sp.logo));
+      const nm = div('nm', sp.name);
+      nm.style.fontSize = sp.logo ? fitFont(sp.name, 26, 18, 24) + 'px' : fitFont(sp.name, 40, 24, 16) + 'px';
+      card.append(nm);
+      sc.append(card);
+      return { el: card, cx: left + CW / 2, top };
+    });
+    tl.set(sc, { autoAlpha: 1, immediateRender: false }, 0);
+    footTier(tl, 'Minor Sponsors', 0);
+    gsap.set(cards.map(c => c.el), { autoAlpha: 0 });
+    tl.fromTo(head, { autoAlpha: 0, y: -20 }, { autoAlpha: 1, y: 0, duration: 0.6, ease: 'power3.out' }, 0);
+
+    // ball rallies across the tops of the cards; each landing pops a card
+    place(tl, -90, cards[0].top - 160, 0.1);
+    let t = 0.1;
+    cards.forEach((c, k) => {
+      const prev = k ? cards[k - 1] : null;
+      const d = prev && prev.top !== c.top ? 0.55 : 0.42;
+      t = hop(tl, c.cx, c.top - 34, k ? 120 : 90, d, t);
+      burst(tl, c.cx, c.top, t, 0.7);
+      tl.fromTo(c.el, { autoAlpha: 0, scale: 0.3, y: 30 }, { autoAlpha: 1, scale: 1, y: 0, duration: 0.6, ease: 'back.out(1.8)' }, t);
+    });
+    const exitY = cards[cards.length - 1].top - 200;
+    hop(tl, 2010, exitY, 140, 0.55, t);
+
+    const out = t + secs;
+    tl.to(cards.map(c => c.el), { autoAlpha: 0, scale: 0.9, y: -20, duration: 0.45, stagger: 0.04, ease: 'power2.in' }, out);
+    tl.to(head, { autoAlpha: 0, duration: 0.4 }, out + 0.1);
+    tl.set(sc, { autoAlpha: 0 }, out + 0.5 + cards.length * 0.04);
+    return tl;
+  }
+
+  function sSpecial(items, page, pages, secs){
+    const tl = gsap.timeline(), sc = scene();
+    const head = secHead('Special Thanks', page, pages);
+    const n = items.length, cols = n <= 5 ? 1 : n <= 10 ? 2 : 3, rows = Math.ceil(n / cols);
+    const grid = div('thanks');
+    grid.style.gridTemplateRows = `repeat(${rows}, auto)`;
+    const size = cols === 3 ? 38 : cols === 2 ? 46 : 54;
+    const els = items.map(sp => {
+      const it = div('titem');
+      if (sp.logo){ const lg = div('lg'); const im = new Image(); im.src = sp.logo; im.alt = ''; lg.append(im); it.append(lg); }
+      else it.append(div('dot'));
+      const t = document.createElement('span'); t.textContent = sp.name;
+      it.style.fontSize = fitFont(sp.name, size, 26, cols === 3 ? 22 : 30) + 'px';
+      it.append(t); grid.append(it); return it;
+    });
+    sc.append(head, grid);
+    tl.set(sc, { autoAlpha: 1, immediateRender: false }, 0);
+    footTier(tl, 'Special Thanks', 0);
+    gsap.set(els, { autoAlpha: 0 });
+    tl.fromTo(head, { autoAlpha: 0, y: -20 }, { autoAlpha: 1, y: 0, duration: 0.6, ease: 'power3.out' }, 0);
+
+    // ball dinks softly along the bottom while names appear
+    place(tl, -90, 960, 0.1);
+    let t = 0.1;
+    for (let k = 1; k <= 6; k++) t = hop(tl, -90 + k * 350, 960, 70, 0.42, t);
+    tl.to(els, { autoAlpha: 1, y: 0, duration: 0.6, stagger: 0.09, ease: 'power3.out', startAt: { y: 26 } }, 0.3);
+
+    const out = Math.max(t, 0.3 + els.length * 0.09 + 0.6) + secs - 1;
+    tl.to(els, { autoAlpha: 0, y: -16, duration: 0.4, stagger: 0.02, ease: 'power2.in' }, out);
+    tl.to(head, { autoAlpha: 0, duration: 0.4 }, out);
+    tl.set(sc, { autoAlpha: 0 }, out + 0.45 + els.length * 0.02);
+    return tl;
+  }
+
+  function sOutro(S){
+    const tl = gsap.timeline(), sc = scene();
+    const col = div('center-col');
+    const ti = div('outro-title'); const ws = splitWords(ti, S.outroTitle || 'Thank you!', /salamat|thank/i);
+    const tx = div('outro-text', S.outroText || '');
+    col.append(ti, tx);
+    let chip = null;
+    if (S.eventName){ chip = div('chip', S.eventName); col.append(chip); }
+    sc.append(col);
+    tl.set(sc, { autoAlpha: 1, immediateRender: false }, 0);
+    footTier(tl, '', 0);
+    gsap.set(ws, { yPercent: 115 }); gsap.set([tx, chip].filter(Boolean), { autoAlpha: 0 });
+
+    place(tl, 960, -90, 0.1);
+    tl.to(ball, { y: 860, duration: 0.65, ease: 'power2.in' }, 0.1);
+    tl.to(core, { scaleY: 0.7, scaleX: 1.25, duration: 0.07, yoyo: true, repeat: 1 }, 0.75);
+    bp = { x: 960, y: 860 };
+    const land = 0.75;
+    burst(tl, 960, 880, land, 1.9);
+    tl.to(ws, { yPercent: 0, duration: 1, stagger: 0.07, ease: 'expo.out' }, land);
+    tl.fromTo(tx, { autoAlpha: 0, y: 24 }, { autoAlpha: 1, y: 0, duration: 0.8, ease: 'power3.out' }, land + 0.4);
+    if (chip) tl.fromTo(chip, { autoAlpha: 0, y: 20 }, { autoAlpha: 1, y: 0, duration: 0.7, ease: 'power3.out' }, land + 0.7);
+    let t = hop(tl, 960, 860, 260, 0.7, land + 0.14);
+    t = hop(tl, 960, 860, 110, 0.46, t);
+    t = hop(tl, 960, 860, 36, 0.26, t);
+    hop(tl, 960, 860, 10, 0.14, t);
+
+    const out = land + 5;
+    tl.to(ws, { yPercent: -115, duration: 0.6, stagger: 0.04, ease: 'power3.in' }, out);
+    tl.to([tx, chip].filter(Boolean), { autoAlpha: 0, duration: 0.5 }, out + 0.1);
+    tl.to(ball, { autoAlpha: 0, scale: 0.5, duration: 0.5 }, out + 0.1);
+    tl.to(courtLines, { autoAlpha: 0, duration: 0.8 }, out + 0.3);
+    tl.to(net, { opacity: 0, duration: 0.8 }, out + 0.3);
+    tl.set(sc, { autoAlpha: 0 }, out + 1.1);
+    return tl;
+  }
+
+  // ---------- show builder ----------
+  const chunk = (arr, n) => { const out = []; for (let i = 0; i < arr.length; i += n) out.push(arr.slice(i, i + n)); return out; };
+  let latest = null, current = null, currentHasSponsors = false;
+
+  function buildShow(d){
+    gsap.killTweensOf([ball, core, tex]);
+    content.innerHTML = ''; fx.innerHTML = '';
+    gsap.set(ball, { xPercent: -50, yPercent: -50, autoAlpha: 0, scale: 1 });
+    gsap.set(core, { scaleX: 1, scaleY: 1 });
+    const S = d.settings;
+    const num = (v, def) => { const n = parseFloat(v); return isFinite(n) && n > 0 ? n : def; };
+    const ms = num(S.majorSeconds, 6), ns = num(S.minorSeconds, 6), ss = num(S.specialSeconds, 7);
+    const by = t => d.sponsors.filter(s => s.type === t);
+    const majors = by('major'), minors = by('minor'), specials = by('special');
+    $('fEvent').textContent = S.eventName || '';
+
+    const tl = gsap.timeline({ onComplete: run });
+    tl.add(sIntro(S));
+    if (majors.length){ tl.add(sTier('major')); majors.forEach((sp, i) => tl.add(sMajor(sp, i, ms))); }
+    if (minors.length){
+      const pages = chunk(minors, 8);
+      tl.add(sTier('minor'));
+      pages.forEach((p, i) => tl.add(sMinor(p, i, pages.length, ns)));
+    }
+    if (specials.length){
+      const pages = chunk(specials, 15);
+      tl.add(sTier('special'));
+      pages.forEach((p, i) => tl.add(sSpecial(p, i, pages.length, ss)));
+    }
+    tl.add(sOutro(S));
+    currentHasSponsors = d.sponsors.length > 0;
+    return tl;
+  }
+  window.__sponsorShow = { get timeline(){ return current; } };
+  function run(){
+    if (current) current.kill();
+    current = buildShow(latest);
+  }
+
+  // ---------- demo data (?demo=1) ----------
+  function demoLogo(text, bg, fg){
+    const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="600" height="240" viewBox="0 0 600 240"><rect width="600" height="240" rx="24" fill="${bg}"/><circle cx="110" cy="120" r="60" fill="${fg}" opacity=".9"/><text x="200" y="140" font-family="Arial Black,Arial" font-size="58" font-weight="900" fill="${fg}">${text}</text></svg>`;
+    return 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
+  }
+  function demoData(){
+    const sp = [
+      ['Island Hardware Co.', 'major', demoLogo('ISLAND', '#0b1e3a', '#d4f22c')],
+      ['Calapan Courts Club', 'major', null],
+      ['Kusina Grill', 'minor', demoLogo('KUSINA', '#ffffff', '#c0362c')],
+      ['Bayside Pharmacy', 'minor', null], ['Dink Masters PH', 'minor', demoLogo('DINK', '#ffffff', '#2a7f86')],
+      ['Sunrise Bakery', 'minor', null], ['Metro Water Refilling', 'minor', null],
+      ['Coach Ramon', 'special', null], ['Barangay Council', 'special', null], ['Volunteer Referees', 'special', null],
+      ['PKL Box Staff', 'special', null], ['Mang Tony Catering', 'special', null], ['All Players & Families', 'special', null]
+    ].map((s, i) => ({ id: 'd' + i, name: s[0], type: s[1], logo: s[2], order: i }));
+    return { settings: Object.assign({}, SponsorStore.DEFAULT_SETTINGS, { eventName: 'Sample Pickleball Open 2026' }), sponsors: sp };
+  }
+
+  // ---------- data ----------
+  const status = $('status');
+  if (params.get('demo') === '1'){
+    latest = demoData(); run();
+  } else {
+    status.textContent = 'Loading sponsors…';
+    SponsorStore.subscribe(d => {
+      status.textContent = '';
+      const first = !latest;
+      latest = d;
+      $('fEvent').textContent = d.settings.eventName || '';
+      // start right away the first time, or if the screen was showing an empty loop and sponsors arrived
+      if (first || (!currentHasSponsors && d.sponsors.length)) run();
+      // otherwise new data is picked up at the start of the next loop
+    }, err => {
+      status.textContent = 'Hindi maka-connect sa database (' + (err.code || 'error') + '). Check Firestore rules / internet.';
+    });
+  }
+
+  // ---------- controls: F = fullscreen, R = restart, click = fullscreen ----------
+  addEventListener('keydown', e => {
+    if (e.key === 'f' || e.key === 'F') toggleFs();
+    if ((e.key === 'r' || e.key === 'R') && latest) run();
+  });
+  stage.addEventListener('dblclick', toggleFs);
+  function toggleFs(){ if (!document.fullscreenElement) document.documentElement.requestFullscreen().catch(() => {}); else document.exitFullscreen(); }
+  let idleT; const wake = () => { document.body.classList.remove('idle'); clearTimeout(idleT); idleT = setTimeout(() => document.body.classList.add('idle'), 2500); };
+  addEventListener('mousemove', wake); wake();
+})();
+</script>
+</body>
+</html>
